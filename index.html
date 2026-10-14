@@ -46,6 +46,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
   background-color: var(--bg);
@@ -307,6 +308,35 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     <p class="next" id="nextLine">Próximo desafio em <b id="countdown">--:--:--</b></p>
   </section>
 
+  <section id="tuneArea" class="reveal" hidden>
+    <span class="res">Modo ajuste</span>
+    <h2 id="tuneTitle"></h2>
+    <p>Toque livre e aperte <b>Marcar início</b> no instante em que a música começa de verdade. Depois confira com <b>Ouvir 2s</b> e refine com os botões.</p>
+    <div class="controls">
+      <button class="btn" id="tunePrev" aria-label="Música anterior">‹</button>
+      <span class="next">Música <b id="tuneIdx">1</b> · início em <b id="tuneStart">0.0</b>s</span>
+      <button class="btn" id="tuneNext" aria-label="Próxima música">›</button>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="tuneFree">▶ Tocar livre</button>
+      <button class="btn primary" id="tuneMark">Marcar início</button>
+      <button class="btn" id="tunePlay">▶ Ouvir 2s</button>
+    </div>
+    <div class="controls">
+      <button class="btn" data-d="-1">−1s</button>
+      <button class="btn" data-d="-0.2">−0,2s</button>
+      <button class="btn" data-d="0.2">+0,2s</button>
+      <button class="btn" data-d="1">+1s</button>
+    </div>
+    <p>Os ajustes já valem neste aparelho. Para valer para todo mundo, copie e me mande:</p>
+    <pre class="grid-share" id="tuneOut" style="font-size:12px;letter-spacing:0;white-space:pre-wrap"></pre>
+    <div class="controls">
+      <button class="btn primary" id="tuneCopy">Copiar ajustes</button>
+      <button class="btn" id="tuneClear">Limpar ajustes</button>
+    </div>
+    <p class="hint" id="tuneHint" role="status"></p>
+  </section>
+
   <details class="how">
     <summary>Como jogar</summary>
     <ol>
@@ -335,6 +365,7 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
   const LAUNCH = "2026-10-13";          // dia do desafio #1
   const SONGS = window.ANIME_OP_SONGS || [];
   const EXTRA = window.ANIME_EXTRA_TITLES || [];
+  const tuneMode = location.hash === "#ajuste";
 
   // ---------- Util ----------
   const $ = (id) => document.getElementById(id);
@@ -346,6 +377,10 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sem storage, segue */ } }
   };
+  // ajustes de início feitos no modo #ajuste (valem só neste aparelho)
+  const OVR_KEY = "starts-override";
+  const overrides = store.get(OVR_KEY) || {};
+  const startOf = (s) => (typeof overrides[s.youtubeId] === "number" ? overrides[s.youtubeId] : (s.start || 0));
 
   function todayKey(d = new Date()) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
   function dayNumber(key) {
@@ -446,7 +481,7 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
       width: "100%", height: "100%",
       playerVars: vars,
       events: {
-        onReady: () => { ready = true; player.setVolume(Number($("vol").value)); cueCurrent(); render(); },
+        onReady: () => { ready = true; player.setVolume(Number($("vol").value)); if (tuneMode) tuneCue(); else cueCurrent(); render(); },
         onError: (e) => { playErr = e.data; stopClip(); render(); },
         onStateChange: (e) => {
           if (e.data === YT.PlayerState.ENDED || (fullPlay && e.data === YT.PlayerState.PAUSED)) { if (playing) { stopClip(); render(); } }
@@ -462,7 +497,7 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     if (cuedId === s.youtubeId) return;
     playErr = null;
     cuedId = s.youtubeId;
-    player.cueVideoById({ videoId: s.youtubeId, startSeconds: s.start || 0 });
+    player.cueVideoById({ videoId: s.youtubeId, startSeconds: startOf(s) });
   }
 
   function playClip() {
@@ -471,7 +506,7 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     const s = song(), r = round();
     fullPlay = r.done;
     const len = fullPlay ? Infinity : unlocked(r);
-    const start = s.start || 0;
+    const start = startOf(s);
     player.seekTo(start, true);
     player.unMute();
     player.playVideo();
@@ -602,6 +637,7 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
   }
 
   function render() {
+    if (tuneMode) { renderTune(); return; }
     if (!state) return;
     const r = round(), s = song();
 
@@ -715,6 +751,74 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     if (e.target === input) return;
     if (e.code === "Space" && !$("playBtn").disabled) { e.preventDefault(); playClip(); }
   });
+
+  // ---------- Modo ajuste (#ajuste) ----------
+  let tuneIdx = 0, tuneRaf = 0, tunePlaying = false;
+  const tuneSong = () => SONGS[tuneIdx];
+  function tuneCue() {
+    if (!ready) return;
+    stopTune();
+    playErr = null;
+    cuedId = tuneSong().youtubeId;
+    player.cueVideoById({ videoId: cuedId, startSeconds: startOf(tuneSong()) });
+  }
+  function stopTune() {
+    cancelAnimationFrame(tuneRaf);
+    if (ready && tunePlaying) { try { player.pauseVideo(); } catch { /* ignore */ } }
+    tunePlaying = false;
+  }
+  function tunePlay(len) {
+    if (!ready) return;
+    if (tunePlaying) { stopTune(); renderTune(); return; }
+    const start = len === Infinity ? 0 : startOf(tuneSong());
+    player.seekTo(start, true); player.unMute(); player.playVideo();
+    tunePlaying = true; renderTune();
+    if (len === Infinity) return;
+    let armed = false;
+    const tick = () => {
+      if (!armed) { armed = player.getPlayerState() === YT.PlayerState.PLAYING && player.getCurrentTime() < start + 0.5; tuneRaf = requestAnimationFrame(tick); return; }
+      if (player.getCurrentTime() - start >= len) { stopTune(); renderTune(); return; }
+      tuneRaf = requestAnimationFrame(tick);
+    };
+    tuneRaf = requestAnimationFrame(tick);
+  }
+  function setStart(v) {
+    overrides[tuneSong().youtubeId] = Math.max(0, Math.round(v * 10) / 10);
+    store.set(OVR_KEY, overrides);
+    renderTune();
+  }
+  function tuneText() {
+    const lines = SONGS.filter((s) => typeof overrides[s.youtubeId] === "number")
+      .map((s) => `${s.anime} | ${s.youtubeId} | start ${overrides[s.youtubeId]}`);
+    return lines.length ? lines.join("\n") : "Nenhum ajuste ainda.";
+  }
+  function renderTune() {
+    ["rounds", "timeline", "playArea", "revealArea", "summaryArea"].forEach((id) => { $(id).hidden = true; });
+    document.querySelector(".controls").hidden = true;
+    $("tuneArea").hidden = false;
+    $("cover").classList.add("gone");
+    const s = tuneSong();
+    $("tuneTitle").textContent = `${s.anime} · ${s.song}`;
+    $("tuneIdx").textContent = `${tuneIdx + 1}/${SONGS.length}`;
+    $("tuneStart").textContent = startOf(s).toFixed(1);
+    $("tuneFree").textContent = tunePlaying ? "■ Parar" : "▶ Tocar livre";
+    $("tunePlay").textContent = tunePlaying ? "■ Parar" : "▶ Ouvir 2s";
+    $("tuneOut").textContent = tuneText();
+    $("tuneHint").textContent = playErr != null ? `Este vídeo não toca aqui (código ${playErr}).` : "";
+  }
+  if (tuneMode) {
+    $("tuneFree").addEventListener("click", () => tunePlay(Infinity));
+    $("tunePlay").addEventListener("click", () => tunePlay(2));
+    $("tuneMark").addEventListener("click", () => { if (ready) setStart(player.getCurrentTime()); });
+    document.querySelectorAll("#tuneArea [data-d]").forEach((b) => b.addEventListener("click", () => setStart(startOf(tuneSong()) + Number(b.dataset.d))));
+    $("tunePrev").addEventListener("click", () => { tuneIdx = (tuneIdx - 1 + SONGS.length) % SONGS.length; tuneCue(); renderTune(); });
+    $("tuneNext").addEventListener("click", () => { tuneIdx = (tuneIdx + 1) % SONGS.length; tuneCue(); renderTune(); });
+    $("tuneCopy").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(tuneText()); $("tuneHint").textContent = "Ajustes copiados."; }
+      catch { const r = document.createRange(); r.selectNodeContents($("tuneOut")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); $("tuneHint").textContent = "Texto selecionado, copie manualmente."; }
+    });
+    $("tuneClear").addEventListener("click", () => { Object.keys(overrides).forEach((k) => delete overrides[k]); store.set(OVR_KEY, overrides); renderTune(); });
+  }
 
   // ---------- Início ----------
   const savedVol = store.get("opdle:vol");
