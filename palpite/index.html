@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Palpite Otaku</title>
+<meta name="description" content="Chute o número, aposte no palpite mais certeiro. 5 perguntas de anime por dia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: uma coluna como o tabuleiro de um game show; a régua de palpites é o centro de cada rodada. */
+:root {
+  --bg: #f1eee6;
+  --dot: #e2ddd0;
+  --surface: #ffffff;
+  --ink: #1b1530;
+  --muted: #6a6480;
+  --line: #d9d4c6;
+  --accent: #6c3cff;
+  --accent-ink: #ffffff;
+  --chip: #ffc53d;
+  --chip-ink: #1b1530;
+  --good: #1f9d5a;
+  --bad: #e0344b;
+  --font-display: "Bungee", "Arial Black", Impact, sans-serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #110d1f; --dot: #1d1832; --surface: #1a1530; --ink: #efeaff; --muted: #a39cbf; --line: #2e2747;
+    --accent: #9b7bff; --accent-ink: #110d1f; --chip: #ffc53d; --chip-ink: #1b1530; --good: #3cc47c; --bad: #ff5d72;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #110d1f; --dot: #1d1832; --surface: #1a1530; --ink: #efeaff; --muted: #a39cbf; --line: #2e2747;
+  --accent: #9b7bff; --accent-ink: #110d1f; --chip: #ffc53d; --chip-ink: #1b1530; --good: #3cc47c; --bad: #ff5d72;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1.2px, transparent 1.3px);
+  background-size: 14px 14px;
+  color: var(--ink);
+  font: 15px/1.5 var(--font-body);
+  padding-inline: 16px;
+  padding-block: calc(env(safe-area-inset-top, 0px) + 20px) calc(env(safe-area-inset-bottom, 0px) + 40px);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 560px; margin: 0 auto; display: grid; gap: 18px; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.logo { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 9vw, 44px); line-height: .95; margin: 0; }
+.logo span { color: var(--accent); display: block; }
+.tag { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+.meta { display: grid; justify-items: end; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 500; }
+.chips { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-size: 18px; color: var(--ink); }
+.chip-ico { width: 20px; height: 20px; border-radius: 50%; background: var(--chip); border: 2px dashed var(--chip-ink); box-shadow: 0 0 0 2px var(--chip); flex: none; }
+
+.rounds { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.rpill { height: 34px; border-radius: 8px; display: grid; place-items: center; font-family: var(--font-mono); font-size: 13px; background: var(--surface); border: 2px solid var(--line); color: var(--muted); font-variant-numeric: tabular-nums; }
+.rpill.now { border-color: var(--ink); color: var(--ink); }
+.rpill.done { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.rpill.zero { background: var(--surface); border-color: var(--ink); color: var(--muted); }
+
+.card { background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: 18px; display: grid; gap: 14px; box-shadow: 6px 6px 0 var(--ink); }
+.kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.question { font-size: clamp(19px, 5vw, 23px); font-weight: 700; line-height: 1.3; margin: 0; text-wrap: balance; }
+.inrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+.num-in { flex: 1 1 180px; min-width: 0; display: flex; align-items: center; border: 2px solid var(--ink); border-radius: 10px; background: var(--bg); padding-right: 12px; }
+.num-in input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 12px 14px; font-family: var(--font-display); font-size: 22px; outline: none; }
+.num-in .unit { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.preview { font-family: var(--font-mono); font-size: 12px; color: var(--muted); min-height: 18px; margin: 0; }
+.btn { border: 2px solid var(--ink); border-radius: 10px; padding: 10px 16px; background: var(--surface); font-weight: 700; box-shadow: 3px 3px 0 var(--ink); transition: transform .06s ease, box-shadow .06s ease; }
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.hint { min-height: 20px; font-size: 13px; color: var(--bad); margin: 0; }
+
+/* régua de palpites */
+.board { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.slot {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+  border: 2px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface);
+  text-align: left; width: 100%; box-shadow: none; position: relative;
+}
+button.slot:hover { border-color: var(--ink); }
+.slot .who { font-size: 13px; color: var(--muted); display: block; }
+.slot .val { font-family: var(--font-display); font-size: 20px; line-height: 1.1; overflow-wrap: anywhere; }
+.slot.mine { border-color: var(--accent); }
+.slot.mine .who { color: var(--accent); font-weight: 700; }
+.slot.special .val { font-family: var(--font-body); font-weight: 700; font-size: 16px; }
+.slot.bet { border-color: var(--ink); background: color-mix(in srgb, var(--chip) 30%, var(--surface)); }
+.slot .tag2 { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.slot.win { border-color: var(--good); }
+.slot.win .tag2 { background: var(--good); color: #fff; }
+.slot.over { opacity: .55; }
+.slot.over .tag2 { border: 1px solid var(--bad); color: var(--bad); }
+.slot .betmark { position: absolute; top: -9px; right: 10px; }
+.answer { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 12px 14px; border-radius: 10px; background: var(--ink); color: var(--bg); }
+.answer .lbl { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; opacity: .75; }
+.answer .big { font-family: var(--font-display); font-size: clamp(22px, 7vw, 30px); overflow-wrap: anywhere; }
+.answer .unit { opacity: .75; }
+.note { margin: 0; color: var(--muted); font-size: 14px; }
+.gain { display: grid; gap: 4px; font-size: 14px; margin: 0; padding: 0; list-style: none; }
+.gain li { display: flex; gap: 8px; align-items: center; }
+.gain .chip-ico { width: 16px; height: 16px; }
+.gain .no { color: var(--muted); }
+
+.summary .score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.summary .num { font-family: var(--font-display); font-size: 64px; line-height: .9; }
+.summary .of { font-family: var(--font-mono); color: var(--muted); }
+.grid-share { font-size: 24px; letter-spacing: 3px; margin: 0; white-space: pre; overflow-x: auto; }
+.reslist { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 14px; }
+.reslist li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; }
+.reslist .pts { font-family: var(--font-mono); font-size: 12px; padding-top: 2px; }
+.next { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin: 0; }
+.next b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+details.how { background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+details.how summary { cursor: pointer; font-weight: 700; }
+details.how ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+footer { font-size: 12px; color: var(--muted); text-align: center; }
+footer button { background: none; border: 0; color: var(--accent); text-decoration: underline; padding: 0; }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 class="logo">Palpite <span>Otaku</span></h1>
+      <p class="tag">Chute o número, aposte no mais certeiro.</p>
+    </div>
+    <div class="meta">
+      <span>Desafio <b id="dayNum">#1</b></span>
+      <span class="chips"><span class="chip-ico" aria-hidden="true"></span><span id="chipsNow">0</span></span>
+    </div>
+  </header>
+
+  <div class="rounds" id="rounds" aria-label="Rodadas"></div>
+
+  <!-- 1. palpite -->
+  <section class="card" id="stepGuess">
+    <span class="kicker" id="kGuess">Pergunta 1 de 5</span>
+    <p class="question" id="qGuess"></p>
+    <div class="inrow">
+      <label class="num-in" for="guessIn">
+        <input id="guessIn" inputmode="numeric" autocomplete="off" placeholder="Seu palpite" aria-label="Seu palpite">
+        <span class="unit" id="unitIn"></span>
+      </label>
+      <button class="btn primary" id="guessBtn">Palpitar</button>
+    </div>
+    <p class="preview" id="preview"></p>
+    <p class="hint" id="hint" role="status"></p>
+  </section>
+
+  <!-- 2. aposta -->
+  <section class="card" id="stepBet" hidden>
+    <span class="kicker">Façam suas apostas</span>
+    <p class="question" id="qBet"></p>
+    <p class="note">Ganha quem chegar <b>mais perto sem passar</b>. Em qual palpite você aposta sua ficha?</p>
+    <div class="board" id="betBoard"></div>
+  </section>
+
+  <!-- 3. revelação -->
+  <section class="card" id="stepReveal" hidden>
+    <span class="kicker" id="kReveal"></span>
+    <p class="question" id="qReveal"></p>
+    <div class="answer"><span class="lbl">Resposta</span><span class="big" id="ansBig"></span><span class="unit" id="ansUnit"></span></div>
+    <p class="note" id="ansNote" hidden></p>
+    <div class="board" id="revBoard"></div>
+    <ul class="gain" id="gain"></ul>
+    <div class="inrow"><button class="btn primary" id="nextBtn">Próxima pergunta</button></div>
+  </section>
+
+  <!-- fim -->
+  <section class="card summary" id="stepEnd" hidden>
+    <div class="score"><span class="num" id="finalChips">0</span><span class="of">/ 25 fichas</span></div>
+    <p class="note" id="title"></p>
+    <pre class="grid-share" id="shareGrid"></pre>
+    <div class="inrow">
+      <button class="btn primary" id="copyBtn">Copiar resultado</button>
+      <button class="btn" id="practiceBtn">Treinar com outras 5</button>
+    </div>
+    <p class="hint" id="copyHint" role="status"></p>
+    <ol class="reslist" id="resList"></ol>
+    <p class="next" id="nextLine">Próximo desafio em <b id="countdown">--:--:--</b></p>
+  </section>
+
+  <details class="how">
+    <summary>Como jogar</summary>
+    <ol>
+      <li>Leia a pergunta e chute um número. Pode escrever “3 bi”, “1,5 mil” e parecidos.</li>
+      <li>Três rivais também chutam. Os palpites aparecem em ordem e você aposta sua ficha no que acha que vai ganhar, que pode ser o seu.</li>
+      <li>Ganha o palpite <b>mais perto sem passar</b> da resposta. Se todos passarem, ganha a carta “Todos passaram”.</li>
+      <li>Seu palpite venceu: <b>+3 fichas</b>. Sua aposta acertou: <b>+2 fichas</b>. Até 25 por dia.</li>
+    </ol>
+  </details>
+
+  <footer>
+    Inspirado no jogo de tabuleiro Palpite Certo. Projeto de fã, sem fins lucrativos.
+    <span id="backDaily" hidden> · <button id="backDailyBtn">Voltar ao desafio do dia</button></span>
+  </footer>
+</div>
+
+<script src="perguntas.js"></script>
+<script>
+(() => {
+  "use strict";
+  const QS = window.PERGUNTAS || [];
+  const ROUNDS = 5, LAUNCH = "2026-10-14";
+  const PTS_GUESS = 3, PTS_BET = 2;
+  const RIVALS = ["Otaku raiz", "Assistiu dublado", "Chuta tudo"];
+  const ALL_OVER = "over";
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, "0");
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sem storage */ } }
+  };
+  const fmt = (n, kind) => kind === "ano" ? String(n) : Number(n).toLocaleString("pt-BR");
+
+  function todayKey(d = new Date()) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+  function dayNumber(key) {
+    const [a, b] = [LAUNCH, key].map((k) => { const [y, m, d] = k.split("-").map(Number); return Date.UTC(y, m - 1, d); });
+    return Math.floor((b - a) / 86400000) + 1;
+  }
+  function xmur3(str) {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+    return () => { h = Math.imul(h ^ (h >>> 16), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return (h ^= h >>> 16) >>> 0; };
+  }
+  function mulberry32(a) {
+    return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  const rng = (s) => mulberry32(xmur3(s)());
+
+  // 5 perguntas do dia, sem repetir a mesma resposta+unidade e com no máximo 2 de ano
+  function pickQuestions(seed) {
+    const rnd = rng("palpite|" + seed);
+    const idx = QS.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    const out = []; let years = 0;
+    for (const i of idx) {
+      const q = QS[i];
+      if (q.kind === "ano" && years >= 2) continue;
+      if (q.kind === "ano") years++;
+      out.push(i);
+      if (out.length === ROUNDS) break;
+    }
+    return out;
+  }
+
+  // Palpites dos rivais: determinísticos por dia+pergunta, espalhados em volta da resposta
+  function niceRound(x) {
+    if (x < 100) return Math.round(x);
+    const p = Math.pow(10, Math.floor(Math.log10(x)) - 1); // 2 algarismos significativos
+    return Math.round(x / p) * p;
+  }
+  function rivalGuesses(seed, qi, mine) {
+    const q = QS[qi], rnd = rng(`rival|${seed}|${qi}`);
+    const normal = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+    const out = [], taken = new Set([mine]);
+    let guard = 0;
+    while (out.length < RIVALS.length && guard++ < 200) {
+      let g;
+      if (q.kind === "ano") g = Math.round(q.a + normal() * 5);
+      else g = Math.max(1, niceRound(q.a * Math.exp(normal() * 0.45)));
+      if (guard > 100) g = (q.kind === "ano" ? q.a : Math.max(1, q.a)) + out.length + 1 + guard; // fallback sem empates
+      if (taken.has(g)) continue;
+      taken.add(g); out.push(g);
+    }
+    return out;
+  }
+
+  // "3 bi", "1,5 mil", "3.000.000.000", "1998"
+  function parseGuess(text) {
+    const m0 = String(text).toLowerCase().match(/(\d[\d.,\s]*?)(?:\s*(bilh[õo]es|bilh[ãa]o|bi|milh[õo]es|milh[ãa]o|mi|mil|k)(?![a-zà-úç]))?(?![\d.,])/);
+    if (!m0) return null;
+    let t = m0[1].trim();
+    const word = m0[2] || "";
+    const mult = /^bi/.test(word) ? 1e9 : /^mi(lh|$)/.test(word) ? 1e6 : /^(mil|k)$/.test(word) ? 1e3 : 1;
+    if (mult > 1) t = t.replace(/\./g, "").replace(",", ".");
+    else t = t.replace(/[.\s]/g, "").replace(/,(\d+)$/, ".$1");
+    if (!/^\d+(\.\d+)?$/.test(t)) return null;
+    const n = Math.round(parseFloat(t) * mult);
+    return Number.isFinite(n) && n >= 0 && n <= 1e15 ? n : null;
+  }
+
+  // vencedor: maior palpite <= resposta; se todos passaram, a carta especial
+  function winnerOf(entries, answer) {
+    let best = null;
+    for (const e of entries) if (e.v <= answer && (!best || e.v > best.v)) best = e;
+    return best ? best.id : ALL_OVER;
+  }
+
+  // ---------- Estado ----------
+  let mode = "daily", seed = todayKey(), picks = [], state = null;
+  const fresh = () => ({ current: 0, finished: false, rounds: Array.from({ length: ROUNDS }, () => ({ guess: null, bet: null })) });
+  const save = () => { if (mode === "daily") store.set("palpite:" + seed, state); };
+
+  function start(newMode) {
+    mode = newMode;
+    seed = mode === "daily" ? todayKey() : "treino-" + Date.now();
+    picks = pickQuestions(seed);
+    const saved = mode === "daily" ? store.get("palpite:" + seed) : null;
+    state = saved && Array.isArray(saved.rounds) && saved.rounds.length === ROUNDS ? saved : fresh();
+    $("guessIn").value = ""; setHint("");
+    render();
+  }
+
+  function roundData(i) {
+    const qi = picks[i], q = QS[qi], r = state.rounds[i];
+    if (r.guess == null) return { q, r };
+    const rv = rivalGuesses(seed, qi, r.guess);
+    const entries = [{ id: "me", who: "Você", v: r.guess }, ...rv.map((v, k) => ({ id: "r" + k, who: RIVALS[k], v }))].sort((a, b) => a.v - b.v);
+    const win = winnerOf(entries, q.a);
+    const gotGuess = win === "me";
+    const gotBet = r.bet != null && r.bet === win;
+    return { q, r, entries, win, gotGuess, gotBet, pts: (gotGuess ? PTS_GUESS : 0) + (gotBet ? PTS_BET : 0) };
+  }
+  const roundDone = (i) => state.rounds[i].bet != null;
+  const total = () => state.rounds.reduce((t, _, i) => t + (roundDone(i) ? roundData(i).pts : 0), 0);
+
+  // ---------- Ações ----------
+  function submitGuess() {
+    const n = parseGuess($("guessIn").value);
+    if (n == null) { setHint("Digite um número. Vale “3 bi” ou “1,5 mil”."); return; }
+    state.rounds[state.current].guess = n;
+    save(); setHint(""); render();
+  }
+  function placeBet(id) {
+    state.rounds[state.current].bet = id;
+    save(); render();
+  }
+  function next() {
+    if (state.current < ROUNDS - 1) state.current++; else state.finished = true;
+    $("guessIn").value = ""; $("preview").textContent = "";
+    save(); render();
+    if (!state.finished) $("guessIn").focus();
+  }
+  const setHint = (t) => { $("hint").textContent = t; };
+
+  // ---------- Render ----------
+  function slotHTML(e, d, opts) {
+    const cls = ["slot"];
+    if (e.id === "me") cls.push("mine");
+    if (e.id === ALL_OVER) cls.push("special");
+    let tag = "";
+    if (opts.reveal) {
+      if (e.id === d.win) { cls.push("win"); tag = `<span class="tag2">Venceu</span>`; }
+      else if (e.id !== ALL_OVER && e.v > d.q.a) { cls.push("over"); tag = `<span class="tag2">Passou</span>`; }
+      if (d.r.bet === e.id) cls.push("bet");
+    }
+    const betMark = opts.reveal && d.r.bet === e.id ? `<span class="chip-ico betmark" title="Sua aposta" aria-label="Sua aposta"></span>` : "";
+    const val = e.id === ALL_OVER ? "Todos passaram" : `${fmt(e.v, d.q.kind)}${d.q.unit ? ` <small style="font-family:var(--font-body);font-size:13px;color:var(--muted)">${esc(d.q.unit)}</small>` : ""}`;
+    const inner = `<span><span class="who">${esc(e.who)}</span><span class="val">${val}</span></span>${tag}${betMark}`;
+    return opts.button
+      ? `<button class="${cls.join(" ")}" data-bet="${e.id}">${inner}</button>`
+      : `<div class="${cls.join(" ")}">${inner}</div>`;
+  }
+
+  function render() {
+    $("dayNum").textContent = mode === "daily" ? "#" + dayNumber(seed) : "treino";
+    $("backDaily").hidden = mode === "daily";
+    $("chipsNow").textContent = total();
+
+    $("rounds").innerHTML = state.rounds.map((_, i) => {
+      if (roundDone(i)) { const p = roundData(i).pts; return `<div class="rpill ${p ? "done" : "zero"}">+${p}</div>`; }
+      return `<div class="rpill ${i === state.current && !state.finished ? "now" : ""}">${i + 1}</div>`;
+    }).join("");
+
+    const i = state.current, d = roundData(i);
+    const phase = state.finished ? "end" : d.r.guess == null ? "guess" : d.r.bet == null ? "bet" : "reveal";
+    $("stepGuess").hidden = phase !== "guess";
+    $("stepBet").hidden = phase !== "bet";
+    $("stepReveal").hidden = phase !== "reveal";
+    $("stepEnd").hidden = phase !== "end";
+
+    if (phase === "guess") {
+      $("kGuess").textContent = `Pergunta ${i + 1} de ${ROUNDS}`;
+      $("qGuess").textContent = d.q.q;
+      $("unitIn").textContent = d.q.unit || (d.q.kind === "ano" ? "ano" : "");
+      $("guessIn").placeholder = d.q.kind === "ano" ? "Ex.: 1995" : "Seu palpite";
+      updatePreview();
+    }
+    if (phase === "bet") {
+      $("qBet").textContent = d.q.q;
+      const special = { id: ALL_OVER, who: "Carta especial" };
+      $("betBoard").innerHTML = [...d.entries, special].map((e) => slotHTML(e, d, { button: true })).join("");
+    }
+    if (phase === "reveal") {
+      $("kReveal").textContent = `Pergunta ${i + 1} de ${ROUNDS}`;
+      $("qReveal").textContent = d.q.q;
+      $("ansBig").textContent = fmt(d.q.a, d.q.kind);
+      $("ansUnit").textContent = d.q.unit || "";
+      $("ansNote").hidden = !d.q.note;
+      $("ansNote").textContent = d.q.note || "";
+      const special = { id: ALL_OVER, who: "Carta especial" };
+      $("revBoard").innerHTML = [...d.entries, special].map((e) => slotHTML(e, d, { reveal: true })).join("");
+      const gl = [];
+      gl.push(d.gotGuess ? `<li><span class="chip-ico"></span> Seu palpite venceu: +${PTS_GUESS}</li>` : `<li class="no">Seu palpite não venceu${d.r.guess > d.q.a ? " (passou da resposta)" : ""}.</li>`);
+      gl.push(d.gotBet ? `<li><span class="chip-ico"></span> Sua aposta acertou: +${PTS_BET}</li>` : `<li class="no">Sua aposta não acertou.</li>`);
+      $("gain").innerHTML = gl.join("");
+      $("nextBtn").textContent = i < ROUNDS - 1 ? "Próxima pergunta" : "Ver resultado";
+    }
+    if (phase === "end") {
+      const t = total();
+      $("finalChips").textContent = t;
+      $("title").textContent = t >= 20 ? "Palpiteiro lendário." : t >= 13 ? "Palpiteiro da turma." : t >= 7 ? "Otaku de respeito." : "Hoje o chute não colou.";
+      $("shareGrid").textContent = shareRows();
+      $("resList").innerHTML = state.rounds.map((_, k) => {
+        const x = roundData(k);
+        return `<li><span class="pts">+${x.pts}</span><span>${esc(x.q.q)} <b>${fmt(x.q.a, x.q.kind)}${x.q.unit ? " " + esc(x.q.unit) : ""}</b> · você: ${fmt(x.r.guess, x.q.kind)}</span></li>`;
+      }).join("");
+      $("nextLine").hidden = mode !== "daily";
+      $("practiceBtn").textContent = mode === "daily" ? "Treinar com outras 5" : "Mais 5 de treino";
+    }
+  }
+
+  function updatePreview() {
+    const d = roundData(state.current);
+    const n = parseGuess($("guessIn").value);
+    $("preview").textContent = n == null || d.q.kind === "ano" || n < 10000 ? "" : `= ${fmt(n)}${d.q.unit ? " " + d.q.unit : ""}`;
+  }
+
+  function shareRows() {
+    return state.rounds.map((_, k) => {
+      const x = roundData(k);
+      return x.gotGuess && x.gotBet ? "🎯" : x.gotGuess ? "🟪" : x.gotBet ? "🟨" : "⬛";
+    }).join("");
+  }
+  async function copyShare() {
+    const head = mode === "daily" ? `Palpite Otaku #${dayNumber(seed)}` : "Palpite Otaku (treino)";
+    const text = `${head} · ${total()}/25 fichas\n${shareRows()}` + (location.protocol.startsWith("http") ? `\n${location.origin}${location.pathname}` : "");
+    try { await navigator.clipboard.writeText(text); $("copyHint").textContent = "Resultado copiado."; $("copyHint").style.color = "var(--good)"; }
+    catch {
+      const range = document.createRange(); range.selectNodeContents($("shareGrid"));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      $("copyHint").textContent = "Não deu para copiar sozinho. Copie manualmente.";
+      $("copyHint").style.color = "var(--muted)";
+    }
+  }
+
+  function tickCountdown() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const s = Math.max(0, Math.floor((tomorrow - now) / 1000));
+    $("countdown").textContent = `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+    if (mode === "daily" && seed !== todayKey() && state && state.finished) start("daily");
+  }
+
+  // ---------- Eventos ----------
+  $("guessBtn").addEventListener("click", submitGuess);
+  $("guessIn").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); submitGuess(); } });
+  $("guessIn").addEventListener("input", () => { setHint(""); updatePreview(); });
+  $("betBoard").addEventListener("click", (e) => { const b = e.target.closest("[data-bet]"); if (b) placeBet(b.dataset.bet); });
+  $("nextBtn").addEventListener("click", next);
+  $("copyBtn").addEventListener("click", copyShare);
+  $("practiceBtn").addEventListener("click", () => start("practice"));
+  $("backDailyBtn").addEventListener("click", () => start("daily"));
+
+  if (QS.length < ROUNDS) setHint("A lista precisa de pelo menos 5 perguntas.");
+  start("daily");
+  tickCountdown();
+  setInterval(tickCountdown, 1000);
+  window.PALPITE = { pickQuestions, rivalGuesses, parseGuess, winnerOf, todayKey };
+})();
+</script>
+</body>
+</html>
