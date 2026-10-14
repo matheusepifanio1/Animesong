@@ -1,60 +1,40 @@
-# OPdle
+# OPdle e Luandle
 
-Jogo diário de adivinhar o anime pela abertura. 5 aberturas por dia, iguais para todo mundo, com trechos de 1s → 2s → 4s → 7s → 11s → 16s.
+Jogos diários de adivinhar a música pelo trecho. 5 por dia, iguais para todo mundo, com trechos de 1s → 2s → 4s → 7s → 11s → 16s.
 
-## Rodar
+- `/` — **OPdle**: adivinhe o anime pela abertura.
+- `/luan/` — **Luandle**: adivinhe a música do Luan Santana.
 
-O player do YouTube não toca com o arquivo aberto direto do disco (`file://`), então sirva a pasta:
+## Áudio
 
-```bash
-npx serve .
-# ou
-python -m http.server 8000
-```
+O áudio vem das prévias oficiais de 30s da Apple Music/iTunes. O navegador busca cada música na API pública do iTunes (JSONP, sem chave), descarta versões ao vivo, acústicas, remix e instrumentais, e guarda o resultado em cache. Funciona em qualquer hospedagem estática, inclusive abrindo o arquivo direto do disco.
 
-Para publicar, qualquer hospedagem estática serve: GitHub Pages, Netlify, Cloudflare Pages.
+## Conferir as músicas
 
-## Arquivos
+Abra `index.html#conferir` (ou `luan/#conferir`). Para cada música aparece a faixa que o iTunes achou, com capa e álbum. Dá para:
 
-| Arquivo | O que é |
-|---|---|
-| `index.html` | O jogo inteiro (HTML, CSS e JS, sem build) |
-| `songs.js` | Lista de aberturas + animes extras do autocomplete |
-| `validate.mjs` | Confere se os vídeos existem e permitem embed |
+- ouvir 2s ou a prévia inteira;
+- trocar para outro resultado, se a faixa estiver errada;
+- marcar ou ajustar o segundo em que o trecho começa.
+
+As escolhas valem no aparelho na hora. **Copiar lista** gera um texto com o `trackId` e o `start` de cada música para fixar no `songs.js`, e aí vale para todo mundo.
 
 ## Adicionar músicas
 
-Acrescente um objeto em `window.ANIME_OP_SONGS`:
-
 ```js
-{ anime: "Haikyuu!!", aliases: ["ハイキュー!!", "Haikyu"], song: "Imagination", artist: "SPYAIR",
-  youtubeId: "XXXXXXXXXXX", start: 0, tier: 1 }
+{ anime: "Haikyuu!!", aliases: ["ハイキュー!!"], song: "Imagination", artist: "SPYAIR",
+  itunes: { term: "SPYAIR Imagination", artist: "SPYAIR", title: ["Imagination"] },
+  start: 0, tier: 1 }
 ```
 
-- `anime` é a resposta. Animes com o mesmo `anime` contam como o mesmo (o jogo nunca sorteia dois do mesmo anime no dia).
-- `start` é o segundo onde o trecho começa. Se o clipe tem intro falada ou silêncio, ajuste aqui.
+- `anime` é a resposta (no Luandle, o nome da música).
+- `itunes.artist` e `itunes.title` aceitam listas, útil para nomes em japonês.
+- `trackId` (opcional) fixa a faixa e pula a busca.
 - `tier` 1 vai para as primeiras rodadas do dia; 2 para as últimas.
-- Se o anime já está em `ANIME_EXTRA_TITLES`, pode tirar de lá (não é obrigatório).
-
-Depois rode:
-
-```bash
-node validate.mjs
-```
-
-Prefira vídeos de canais oficiais (do artista, Aniplex, TOHO animation, Crunchyroll, canais "- Topic"), que tendem a durar mais e liberar embed.
 
 ## Como funciona
 
-- **Sorteio do dia**: a data local (`AAAA-MM-DD`) vira a seed de um PRNG; ele embaralha a lista e pega os 5 primeiros animes diferentes. Não precisa de backend.
-- **Número do desafio**: dias desde `LAUNCH` (`2026-10-13`) no topo do script.
-- **Progresso**: salvo no `localStorage` por data. Volume também.
+- **Sorteio do dia**: a data local vira a seed de um PRNG que escolhe 5 respostas diferentes.
+- **Progresso**: salvo no `localStorage` por data.
 - **Pontos**: acertar na tentativa *n* (1 a 6) vale `7 - n`. Máximo 30.
 - **Compartilhar**: 🟩 acerto, 🟥 erro, ⬛ pulo, ⬜ não usado.
-- **Modo treino**: depois de terminar o dia, sorteia 5 aleatórias que não ficam salvas.
-- No console do navegador, `OPDLE.pickSongs("2026-10-20")` mostra o que sai em qualquer data.
-
-## Observações
-
-- A capa por cima do player esconde título e miniatura. As regras da API do YouTube pedem player visível, então isso é zona cinzenta, comum em jogos de fã.
-- Com 23 músicas, aberturas se repetem em poucos dias. O ideal é chegar a 150+ antes de divulgar.
