@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Luandle</title>
+<meta name="description" content="Adivinhe a música do Luan Santana pela introdução. 5 por dia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Nunito:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: uma coluna como um cartaz de rodeio ao pôr do sol; o disco é o palco, o resto é controle. */
+:root {
+  --bg: #f6ead8;
+  --dot: #ead6b8;
+  --surface: #fffaf2;
+  --ink: #2b1a12;
+  --muted: #7a6152;
+  --line: #e2cdb2;
+  --accent: #e8590c;
+  --accent-ink: #ffffff;
+  --blue: #1d5f8a;
+  --good: #2f8a3e;
+  --bad: #c8322b;
+  --skip: #9b8676;
+  --stage: #2b1a12;
+  --stage-ink: #fff3e2;
+  --font-display: "Rye", Georgia, "Times New Roman", serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a110d; --dot: #2a1c15; --surface: #241812; --ink: #f7eadb; --muted: #bba08c;
+    --line: #3d2b20; --accent: #ff7a2e; --accent-ink: #1a110d; --blue: #6fb3e0;
+    --good: #5cc46c; --bad: #ff6a5c; --skip: #8f7a6b; --stage: #0f0906; --stage-ink: #fff3e2;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1a110d; --dot: #2a1c15; --surface: #241812; --ink: #f7eadb; --muted: #bba08c;
+  --line: #3d2b20; --accent: #ff7a2e; --accent-ink: #1a110d; --blue: #6fb3e0;
+  --good: #5cc46c; --bad: #ff6a5c; --skip: #8f7a6b; --stage: #0f0906; --stage-ink: #fff3e2;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1.2px, transparent 1.3px);
+  background-size: 14px 14px;
+  color: var(--ink);
+  font: 15px/1.5 var(--font-body);
+  padding-inline: 16px;
+  padding-block: calc(env(safe-area-inset-top, 0px) + 20px) calc(env(safe-area-inset-bottom, 0px) + 40px);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 560px; margin: 0 auto; display: grid; gap: 18px; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+
+/* Cabeçalho */
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(40px, 11vw, 58px);
+  line-height: .9;
+  margin: 0;
+  letter-spacing: -.01em;
+  transform: skew(-8deg);
+  color: var(--ink);
+  text-shadow: 4px 4px 0 var(--accent);
+}
+.logo span { color: var(--accent); text-shadow: 4px 4px 0 var(--ink); }
+.tag { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+.meta { display: grid; justify-items: end; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 500; }
+.chip { display: inline-block; padding: 2px 8px; border-radius: 99px; background: var(--blue); color: #fff; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+
+.banner { background: var(--surface); border: 2px solid var(--bad); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+.banner code { font-family: var(--font-mono); background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+
+/* Rodadas */
+.rounds { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.rpill {
+  height: 34px; border-radius: 8px; display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums;
+  background: var(--surface); border: 2px solid var(--line); color: var(--muted);
+}
+.rpill.now { border-color: var(--ink); color: var(--ink); }
+.rpill.won { background: var(--good); border-color: var(--good); color: #fff; }
+.rpill.lost { background: var(--bad); border-color: var(--bad); color: #fff; }
+
+/* Palco: player + capa por cima */
+.stage {
+  position: relative; aspect-ratio: 16 / 9; max-width: 100%;
+  border-radius: 14px; overflow: hidden; background: var(--stage);
+  box-shadow: 6px 6px 0 var(--ink);
+  border: 2px solid var(--ink);
+}
+#yt, .stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.cover {
+  position: absolute; inset: 0; z-index: 2;
+  background:
+    radial-gradient(120% 90% at 50% 120%, rgba(255,140,40,.55), transparent 60%),
+    linear-gradient(180deg, #2b1a12 0%, #5a2a14 60%, #a8481a 100%);
+  color: var(--stage-ink);
+  display: flex; align-items: center; justify-content: center; gap: 22px; padding: 16px;
+  transition: opacity .5s ease;
+}
+.cover.gone { opacity: 0; pointer-events: none; }
+.disc {
+  width: min(34vw, 150px); aspect-ratio: 1; border-radius: 50%; flex: none;
+  background:
+    radial-gradient(circle, var(--stage) 0 9%, var(--accent) 9.5% 30%, #111 30.5% 32%, transparent 32.5%),
+    repeating-radial-gradient(circle, #1d1e2c 0 2px, #26283a 2px 4px);
+  box-shadow: 0 0 0 3px #2c2e44;
+  position: relative;
+}
+.disc::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 20deg, transparent 0 10%, rgba(255,255,255,.12) 13%, transparent 17% 60%, rgba(255,255,255,.08) 63%, transparent 67%);
+}
+.cover.playing .disc { animation: spin 1.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.cover-txt { display: grid; gap: 4px; min-width: 0; }
+.cover-txt .kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.cover-txt .big { font-family: var(--font-display); font-size: clamp(30px, 8vw, 44px); line-height: 1; }
+.cover-txt .big em { font-style: normal; color: var(--accent); }
+.cover-err { font-size: 13px; color: #ffb3bf; max-width: 26ch; }
+
+/* Linha do tempo */
+.timeline { display: grid; gap: 6px; }
+.bar { position: relative; height: 14px; border-radius: 7px; background: var(--surface); border: 2px solid var(--ink); overflow: hidden; }
+.bar .unlocked { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--line) 0 2px, transparent 2px 6px); }
+.bar .prog { position: absolute; inset: 0 auto 0 0; background: var(--accent); width: 0; }
+.bar .tick { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); opacity: .35; }
+.ticks { position: relative; height: 16px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ticks span { position: absolute; transform: translateX(-100%); }
+
+/* Controles */
+.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.btn {
+  border: 2px solid var(--ink); border-radius: 10px; padding: 10px 16px;
+  background: var(--surface); font-weight: 700; box-shadow: 3px 3px 0 var(--ink);
+  transition: transform .06s ease, box-shadow .06s ease;
+}
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.play { flex: 1 1 160px; font-size: 17px; padding: 12px 16px; }
+.vol { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.vol input { width: 90px; accent-color: var(--accent); }
+
+/* Tentativas */
+.guesses { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.guesses li {
+  min-height: 38px; border-radius: 8px; border: 2px dashed var(--line);
+  display: flex; align-items: center; gap: 10px; padding: 6px 12px; font-size: 14px; min-width: 0;
+}
+.guesses li .n { font-family: var(--font-mono); font-size: 11px; color: var(--muted); width: 26px; flex: none; font-variant-numeric: tabular-nums; }
+.guesses li .t { min-width: 0; overflow-wrap: anywhere; }
+.guesses li.wrong { border-style: solid; border-color: var(--bad); }
+.guesses li.wrong .t::before { content: "✕ "; color: var(--bad); font-weight: 700; }
+.guesses li.skip { border-style: solid; border-color: var(--skip); color: var(--muted); }
+.guesses li.correct { border-style: solid; border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--surface)); }
+.guesses li.correct .t::before { content: "✓ "; color: var(--good); font-weight: 700; }
+
+/* Entrada com autocomplete */
+.guessbox { display: grid; gap: 8px; }
+.inrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.ac { position: relative; flex: 1 1 220px; min-width: 0; }
+.ac input {
+  width: 100%; padding: 11px 14px; border-radius: 10px; border: 2px solid var(--ink);
+  background: var(--surface); outline: none;
+}
+.ac input:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 40%, transparent); }
+.ac ul {
+  position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); z-index: 5;
+  margin: 0; padding: 4px; list-style: none; max-height: 240px; overflow-y: auto;
+  background: var(--surface); border: 2px solid var(--ink); border-radius: 10px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.ac li { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+.ac li small { color: var(--muted); font-size: 12px; text-align: right; overflow-wrap: anywhere; }
+.ac li.hi { background: var(--accent); color: var(--accent-ink); }
+.ac li.hi small { color: var(--accent-ink); opacity: .85; }
+.hint { min-height: 20px; font-size: 13px; color: var(--bad); margin: 0; }
+
+/* Revelação */
+.reveal {
+  background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: 16px;
+  display: grid; gap: 10px;
+}
+.reveal .res { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.reveal .res.won { color: var(--good); }
+.reveal .res.lost { color: var(--bad); }
+.reveal h2 { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1.1; margin: 0; text-wrap: balance; }
+.reveal p { margin: 0; color: var(--muted); }
+.reveal p b { color: var(--ink); }
+
+/* Resumo final */
+.summary { background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: 18px; display: grid; gap: 14px; box-shadow: 6px 6px 0 var(--accent); }
+.score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.score .num { font-family: var(--font-display); font-size: 64px; line-height: .9; font-variant-numeric: tabular-nums; }
+.score .of { font-family: var(--font-mono); color: var(--muted); }
+.grid-share { font-size: 22px; line-height: 1.25; letter-spacing: 2px; white-space: pre; overflow-x: auto; margin: 0; }
+.songlist { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.songlist li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; font-size: 14px; }
+.songlist .pts { font-family: var(--font-mono); font-size: 12px; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.songlist a { color: var(--blue); }
+.next { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.next b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+details.how { background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+details.how summary { cursor: pointer; font-weight: 700; }
+details.how ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+footer { font-size: 12px; color: var(--muted); text-align: center; }
+footer button { background: none; border: 0; color: var(--blue); text-decoration: underline; padding: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cover.playing .disc { animation: none; }
+  .cover, .btn { transition: none; }
+}
+@media (max-width: 420px) {
+  .disc { width: 96px; }
+  .cover { gap: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 class="logo">Luan<span>dle</span></h1>
+      <p class="tag">Adivinhe a música do Luan Santana pela introdução. 5 por dia.</p>
+    </div>
+    <div class="meta">
+      <span id="modeChip" class="chip" hidden>Treino</span>
+      <span>Desafio <b id="dayNum">#1</b></span>
+      <span>Pontos <b id="scoreNow">0</b>/30</span>
+    </div>
+  </header>
+
+  <div id="fileBanner" class="banner" hidden>
+    O player do YouTube não funciona com o arquivo aberto direto do disco. Rode um servidor local na pasta do jogo, por exemplo <code>npx serve</code> ou <code>python -m http.server</code>, e abra o endereço que ele mostrar.
+  </div>
+
+  <div class="rounds" id="rounds" aria-label="Rodadas"></div>
+
+  <div class="stage">
+    <div id="yt"></div>
+    <div class="cover" id="cover">
+      <div class="disc" aria-hidden="true"></div>
+      <div class="cover-txt">
+        <span class="kicker" id="coverKicker">Música 1 de 5</span>
+        <span class="big" id="coverBig">Que <em>modão</em> é esse?</span>
+        <span class="cover-err" id="coverErr" hidden></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline" id="timeline" aria-hidden="true">
+    <div class="bar"><div class="unlocked" id="unlocked"></div><div class="prog" id="prog"></div></div>
+    <div class="ticks" id="ticks"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn primary play" id="playBtn" disabled>Carregando player…</button>
+    <label class="vol" for="vol">vol <input type="range" id="vol" min="0" max="100" value="70"></label>
+  </div>
+
+  <section id="playArea" class="guessbox">
+    <ul class="guesses" id="guesses"></ul>
+    <div class="inrow">
+      <div class="ac">
+        <input id="guessInput" type="text" autocomplete="off" spellcheck="false" placeholder="Digite o nome da música…" aria-label="Nome da música" aria-autocomplete="list" aria-controls="acList">
+        <ul id="acList" role="listbox" hidden></ul>
+      </div>
+      <button class="btn primary" id="guessBtn">Chutar</button>
+      <button class="btn" id="skipBtn">Pular</button>
+    </div>
+    <p class="hint" id="hint" role="status"></p>
+  </section>
+
+  <section id="revealArea" class="reveal" hidden>
+    <span class="res" id="revRes"></span>
+    <h2 id="revAnime"></h2>
+    <p><b id="revSong"></b> · <span id="revArtist"></span></p>
+    <div class="controls">
+      <button class="btn primary" id="nextBtn">Próxima música</button>
+    </div>
+  </section>
+
+  <section id="summaryArea" class="summary" hidden>
+    <div class="score"><span class="num" id="finalScore">0</span><span class="of">/ 30 pontos</span></div>
+    <pre class="grid-share" id="shareGrid"></pre>
+    <div class="controls">
+      <button class="btn primary" id="copyBtn">Copiar resultado</button>
+      <button class="btn" id="practiceBtn">Treinar com outras 5</button>
+    </div>
+    <p class="hint" id="copyHint" role="status"></p>
+    <ol class="songlist" id="songList"></ol>
+    <p class="next" id="nextLine">Próximo desafio em <b id="countdown">--:--:--</b></p>
+  </section>
+
+  <details class="how">
+    <summary>Como jogar</summary>
+    <ol>
+      <li>Toque o trecho e digite o nome da música. Escolha o nome na lista que aparece.</li>
+      <li>Cada erro ou pulo libera mais tempo: 1s, 2s, 4s, 7s, 11s e 16s.</li>
+      <li>Acertou ouvindo 1s vale 6 pontos, com 16s vale 1. São 5 músicas, até 30 pontos.</li>
+      <li>O desafio muda à meia-noite e é igual para todo mundo.</li>
+    </ol>
+  </details>
+
+  <footer>
+    Áudio tocado pelos vídeos oficiais no YouTube. Projeto de fã, sem fins lucrativos. <a href="../" style="color:var(--blue)">Jogar a versão de anime</a>
+    <span id="backDaily" hidden> · <button id="backDailyBtn">Voltar ao desafio do dia</button></span>
+  </footer>
+</div>
+
+<script src="songs.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  // ---------- Config ----------
+  const CLIPS = [1, 2, 4, 7, 11, 16];   // segundos liberados por tentativa
+  const MAX_SEC = CLIPS[CLIPS.length - 1];
+  const ROUNDS = 5;
+  const LAUNCH = "2026-10-13";          // dia do desafio #1
+  const SONGS = window.ANIME_OP_SONGS || [];
+  const EXTRA = window.ANIME_EXTRA_TITLES || [];
+
+  // ---------- Util ----------
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, "0");
+  const norm = (s) => String(s).normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .replace(/[^a-z0-9぀-ヿ一-鿿]/g, "");
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sem storage, segue */ } }
+  };
+
+  function todayKey(d = new Date()) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+  function dayNumber(key) {
+    const [a, b] = [LAUNCH, key].map((k) => { const [y, m, d] = k.split("-").map(Number); return Date.UTC(y, m - 1, d); });
+    return Math.floor((b - a) / 86400000) + 1;
+  }
+
+  // PRNG determinístico a partir de uma string (a data)
+  function xmur3(str) {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+    return () => { h = Math.imul(h ^ (h >>> 16), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return (h ^= h >>> 16) >>> 0; };
+  }
+  function mulberry32(a) {
+    return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+
+  // 5 músicas do dia: embaralha com a seed, pega animes diferentes, ordena da mais famosa pra menos
+  function pickSongs(seed) {
+    const rnd = mulberry32(xmur3("luandle|" + seed)());
+    const idx = SONGS.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    const seen = new Set(), out = [];
+    for (const i of idx) {
+      const k = norm(SONGS[i].anime);
+      if (seen.has(k)) continue;
+      seen.add(k); out.push(SONGS[i]);
+      if (out.length === ROUNDS) break;
+    }
+    return out.map((s, order) => ({ s, order })).sort((a, b) => (a.s.tier || 2) - (b.s.tier || 2) || a.order - b.order).map((x) => x.s);
+  }
+
+  // Catálogo do autocomplete: nome canônico + apelidos
+  const catalog = (() => {
+    const map = new Map();
+    const add = (name, aliases) => {
+      const k = norm(name);
+      if (!map.has(k)) map.set(k, { name, keys: new Set([k]), aliases: [] });
+      const e = map.get(k);
+      for (const a of aliases || []) { const ak = norm(a); if (ak && !e.keys.has(ak)) { e.keys.add(ak); e.aliases.push(a); } }
+    };
+    SONGS.forEach((s) => add(s.anime, s.aliases));
+    EXTRA.forEach(([n, ...al]) => add(n, al));
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  })();
+  function findExact(text) { const k = norm(text); return k ? catalog.find((e) => e.keys.has(k)) : null; }
+  function search(text) {
+    const k = norm(text);
+    if (!k) return [];
+    const starts = [], has = [];
+    for (const e of catalog) {
+      let best = 0, via = "";
+      for (const key of e.keys) {
+        if (key.startsWith(k)) { best = 2; break; }
+        if (key.includes(k)) best = Math.max(best, 1);
+      }
+      if (!best) continue;
+      if (!norm(e.name).includes(k)) via = e.aliases.find((a) => norm(a).includes(k)) || "";
+      (best === 2 ? starts : has).push({ e, via });
+    }
+    return [...starts, ...has].slice(0, 8);
+  }
+
+  // ---------- Estado ----------
+  let mode = "daily";
+  let seed = todayKey();
+  let picks = [];
+  let state = null;
+
+  const freshState = () => ({ rounds: Array.from({ length: ROUNDS }, () => ({ guesses: [], done: false, won: false, broken: false })), current: 0, finished: false });
+  const storeKey = () => "luandle:" + seed;
+  function save() { if (mode === "daily") store.set(storeKey(), state); }
+
+  function startGame(newMode) {
+    mode = newMode;
+    seed = mode === "daily" ? todayKey() : "treino-" + Date.now();
+    picks = pickSongs(seed);
+    const saved = mode === "daily" ? store.get(storeKey()) : null;
+    state = saved && Array.isArray(saved.rounds) && saved.rounds.length === ROUNDS ? saved : freshState();
+    stopClip();
+    cueCurrent();
+    render();
+  }
+
+  const round = () => state.rounds[Math.min(state.current, ROUNDS - 1)];
+  const song = () => picks[Math.min(state.current, ROUNDS - 1)];
+  const unlocked = (r = round()) => CLIPS[Math.min(r.guesses.length, CLIPS.length - 1)];
+  const roundPoints = (r) => r.won ? CLIPS.length - (r.guesses.length - 1) : 0;
+  const totalPoints = () => state.rounds.reduce((t, r) => t + roundPoints(r), 0);
+
+  // ---------- Player do YouTube ----------
+  let player = null, ready = false, playing = false, raf = 0, fullPlay = false, playErr = null;
+
+  window.onYouTubeIframeAPIReady = () => {
+    const vars = { controls: 0, disablekb: 1, rel: 0, playsinline: 1, fs: 0, iv_load_policy: 3, modestbranding: 1 };
+    if (location.protocol.startsWith("http")) vars.origin = location.origin;
+    player = new YT.Player("yt", {
+      width: "100%", height: "100%",
+      playerVars: vars,
+      events: {
+        onReady: () => { ready = true; player.setVolume(Number($("vol").value)); cueCurrent(); render(); },
+        onError: (e) => { playErr = e.data; stopClip(); render(); },
+        onStateChange: (e) => {
+          if (e.data === YT.PlayerState.ENDED || (fullPlay && e.data === YT.PlayerState.PAUSED)) { if (playing) { stopClip(); render(); } }
+        }
+      }
+    });
+  };
+
+  let cuedId = null;
+  function cueCurrent() {
+    if (!ready || !picks.length) return;
+    const s = song();
+    if (cuedId === s.youtubeId) return;
+    playErr = null;
+    cuedId = s.youtubeId;
+    player.cueVideoById({ videoId: s.youtubeId, startSeconds: s.start || 0 });
+  }
+
+  function playClip() {
+    if (!ready) return;
+    if (playing) { stopClip(); render(); return; }
+    const s = song(), r = round();
+    fullPlay = r.done;
+    const len = fullPlay ? Infinity : unlocked(r);
+    const start = s.start || 0;
+    player.seekTo(start, true);
+    player.unMute();
+    player.playVideo();
+    playing = true;
+    render();
+    let armed = false;
+    const tick = () => {
+      // espera o seek terminar e o vídeo começar de fato antes de contar o tempo
+      if (!armed) {
+        armed = player.getPlayerState() === YT.PlayerState.PLAYING && player.getCurrentTime() < start + 0.5;
+        if (!armed) { raf = requestAnimationFrame(tick); return; }
+      }
+      const t = Math.max(0, player.getCurrentTime() - start);
+      if (!fullPlay) $("prog").style.width = (Math.min(t, len) / MAX_SEC * 100) + "%";
+      if (t >= len) { stopClip(); render(); return; }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+
+  function stopClip() {
+    cancelAnimationFrame(raf);
+    if (ready && playing) { try { player.pauseVideo(); } catch { /* ignore */ } }
+    playing = false;
+    $("prog").style.width = "0%";
+  }
+
+  // ---------- Ações ----------
+  function finishIfNeeded(r) {
+    if (r.won || r.guesses.length >= CLIPS.length) r.done = true;
+    if (r.done) stopClip();
+  }
+
+  function guess(text) {
+    const r = round();
+    if (r.done) return;
+    const e = findExact(text) || (acItems[acIndex] && acItems[acIndex].e);
+    if (!e) { setHint("Escolha uma música da lista."); return; }
+    if (r.guesses.some((g) => g.type === "wrong" && norm(g.text) === norm(e.name))) { setHint("Você já chutou esse."); return; }
+    const right = norm(e.name) === norm(song().anime);
+    r.guesses.push({ type: right ? "correct" : "wrong", text: e.name });
+    r.won = right;
+    finishIfNeeded(r);
+    $("guessInput").value = "";
+    closeAc();
+    setHint(right || r.done ? "" : `Errou. Agora você ouve ${unlocked(r)}s.`);
+    save(); render();
+  }
+
+  function skip() {
+    const r = round();
+    if (r.done) return;
+    r.guesses.push({ type: "skip", text: "Pulou" });
+    finishIfNeeded(r);
+    setHint(r.done ? "" : `Agora você ouve ${unlocked(r)}s.`);
+    save(); render();
+  }
+
+  function giveUpBroken() {
+    const r = round();
+    r.broken = true; r.done = true; r.won = false;
+    save(); render();
+  }
+
+  function next() {
+    stopClip();
+    if (state.current < ROUNDS - 1) state.current++;
+    else state.finished = true;
+    save();
+    cueCurrent();
+    render();
+    if (!state.finished) $("guessInput").focus();
+  }
+
+  function setHint(t) { $("hint").textContent = t; }
+
+  // ---------- Autocomplete ----------
+  let acItems = [], acIndex = -1;
+  function openAc(text) {
+    acItems = search(text);
+    acIndex = acItems.length ? 0 : -1;
+    const ul = $("acList");
+    if (!acItems.length) { ul.hidden = true; ul.innerHTML = ""; return; }
+    ul.innerHTML = acItems.map((it, i) =>
+      `<li role="option" data-i="${i}" class="${i === acIndex ? "hi" : ""}">${esc(it.e.name)}${it.via ? `<small>${esc(it.via)}</small>` : ""}</li>`).join("");
+    ul.hidden = false;
+  }
+  function closeAc() { acItems = []; acIndex = -1; $("acList").hidden = true; $("acList").innerHTML = ""; }
+  function moveAc(d) {
+    if (!acItems.length) return;
+    acIndex = (acIndex + d + acItems.length) % acItems.length;
+    [...$("acList").children].forEach((li, i) => li.classList.toggle("hi", i === acIndex));
+    $("acList").children[acIndex].scrollIntoView({ block: "nearest" });
+  }
+
+  // ---------- Compartilhar ----------
+  function shareText() {
+    const rows = state.rounds.map((r) => {
+      if (r.broken) return "⚠️";
+      const cells = CLIPS.map((_, i) => {
+        const g = r.guesses[i];
+        if (!g) return "⬜";
+        return g.type === "correct" ? "🟩" : g.type === "skip" ? "⬛" : "🟥";
+      });
+      return cells.join("");
+    });
+    const head = mode === "daily" ? `Luandle #${dayNumber(seed)}` : "Luandle (treino)";
+    return `${head} · ${totalPoints()}/30\n${rows.join("\n")}` + (location.protocol.startsWith("http") ? `\n${location.origin}${location.pathname}` : "");
+  }
+
+  async function copyShare() {
+    const text = shareText();
+    try { await navigator.clipboard.writeText(text); $("copyHint").textContent = "Resultado copiado."; $("copyHint").style.color = "var(--good)"; }
+    catch {
+      const range = document.createRange(); range.selectNodeContents($("shareGrid"));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      $("copyHint").textContent = "Não deu para copiar sozinho. O texto está selecionado, copie com Ctrl+C.";
+      $("copyHint").style.color = "var(--muted)";
+    }
+  }
+
+  // ---------- Render ----------
+  function renderTicks() {
+    $("ticks").innerHTML = CLIPS.map((c) => `<span style="left:${c / MAX_SEC * 100}%">${c}s</span>`).join("");
+    const bar = document.querySelector(".bar");
+    bar.querySelectorAll(".tick").forEach((t) => t.remove());
+    CLIPS.slice(0, -1).forEach((c) => { const d = document.createElement("div"); d.className = "tick"; d.style.left = `calc(${c / MAX_SEC * 100}% - 1px)`; bar.appendChild(d); });
+  }
+
+  function render() {
+    if (!state) return;
+    const r = round(), s = song();
+
+    $("dayNum").textContent = mode === "daily" ? "#" + dayNumber(seed) : "treino";
+    $("modeChip").hidden = mode === "daily";
+    $("backDaily").hidden = mode === "daily";
+    $("scoreNow").textContent = totalPoints();
+
+    $("rounds").innerHTML = state.rounds.map((x, i) => {
+      const cls = x.done ? (x.won ? "won" : "lost") : (i === state.current && !state.finished ? "now" : "");
+      const label = x.done ? (x.won ? `+${roundPoints(x)}` : "0") : String(i + 1);
+      return `<div class="rpill ${cls}" aria-label="Rodada ${i + 1}">${label}</div>`;
+    }).join("");
+
+    // capa
+    const cover = $("cover");
+    cover.classList.toggle("gone", r.done && !r.broken);
+    cover.classList.toggle("playing", playing && !r.done);
+    $("coverKicker").textContent = `Música ${Math.min(state.current, ROUNDS - 1) + 1} de ${ROUNDS}`;
+    const errBox = $("coverErr");
+    if (playErr != null) {
+      const msg = { 2: "ID de vídeo inválido.", 5: "Erro no player.", 100: "Vídeo removido ou privado.", 101: "O dono do vídeo bloqueou a reprodução fora do YouTube.", 150: "O dono do vídeo bloqueou a reprodução fora do YouTube.", 153: "O YouTube recusou tocar sem um endereço de site. Abra o jogo por um servidor local." }[playErr] || "Não foi possível tocar este vídeo.";
+      errBox.textContent = `${msg} (código ${playErr})`;
+      errBox.hidden = false;
+    } else errBox.hidden = true;
+
+    // linha do tempo
+    $("unlocked").style.width = (r.done ? 100 : unlocked(r) / MAX_SEC * 100) + "%";
+
+    // botão tocar
+    const pb = $("playBtn");
+    pb.disabled = !ready || state.finished;
+    pb.textContent = !ready ? "Carregando player…" : playing ? "■ Parar" : r.done ? "▶ Ouvir a música" : `▶ Tocar ${unlocked(r)}s`;
+
+    // tentativas
+    $("guesses").innerHTML = CLIPS.map((c, i) => {
+      const g = r.guesses[i];
+      return `<li class="${g ? g.type : ""}"><span class="n">${c}s</span><span class="t">${g ? esc(g.text) : ""}</span></li>`;
+    }).join("");
+
+    $("playArea").hidden = r.done || state.finished;
+    if (!r.done && playErr != null) {
+      $("skipBtn").textContent = "Pular música com erro";
+      $("skipBtn").dataset.broken = "1";
+    } else {
+      $("skipBtn").textContent = r.guesses.length < CLIPS.length - 1 ? `Pular (+${CLIPS[r.guesses.length + 1] - CLIPS[r.guesses.length]}s)` : "Desistir";
+      delete $("skipBtn").dataset.broken;
+    }
+
+    // revelação
+    const showReveal = r.done && !state.finished;
+    $("revealArea").hidden = !showReveal;
+    if (showReveal) {
+      const res = $("revRes");
+      res.className = "res " + (r.won ? "won" : "lost");
+      res.textContent = r.broken ? "Música indisponível" : r.won ? `Acertou com ${CLIPS[r.guesses.length - 1]}s · +${roundPoints(r)} pontos` : "Não foi dessa vez";
+      $("revAnime").textContent = s.anime;
+      $("revSong").textContent = s.song;
+      $("revArtist").textContent = s.artist;
+      $("nextBtn").textContent = state.current < ROUNDS - 1 ? "Próxima música" : "Ver resultado";
+    }
+
+    // resumo
+    $("summaryArea").hidden = !state.finished;
+    if (state.finished) {
+      $("finalScore").textContent = totalPoints();
+      $("shareGrid").textContent = shareText().split("\n").slice(1).filter((l) => !l.startsWith("http")).join("\n");
+      $("songList").innerHTML = picks.map((p, i) => {
+        const x = state.rounds[i];
+        return `<li><span class="pts">${x.won ? "+" + roundPoints(x) : "0"}</span><span><b>${esc(p.anime)}</b> · ${esc(p.song)} (${esc(p.artist)}) · <a href="https://www.youtube.com/watch?v=${encodeURIComponent(p.youtubeId)}" target="_blank" rel="noopener">ver no YouTube</a></span></li>`;
+      }).join("");
+      $("nextLine").hidden = mode !== "daily";
+      $("practiceBtn").textContent = mode === "daily" ? "Treinar com outras 5" : "Mais 5 de treino";
+      $("coverKicker").textContent = "Fim do desafio";
+      cover.classList.remove("gone");
+    }
+  }
+
+  function tickCountdown() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const s = Math.max(0, Math.floor((tomorrow - now) / 1000));
+    $("countdown").textContent = `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+    if (mode === "daily" && seed !== todayKey() && state && state.finished) startGame("daily");
+  }
+
+  // ---------- Eventos ----------
+  const input = $("guessInput");
+  input.addEventListener("input", () => { setHint(""); openAc(input.value); });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); moveAc(1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); moveAc(-1); }
+    else if (e.key === "Enter") { e.preventDefault(); guess(acItems[acIndex] ? acItems[acIndex].e.name : input.value); }
+    else if (e.key === "Escape") closeAc();
+  });
+  input.addEventListener("blur", () => setTimeout(closeAc, 150));
+  $("acList").addEventListener("mousedown", (e) => {
+    const li = e.target.closest("li"); if (!li) return;
+    e.preventDefault();
+    guess(acItems[Number(li.dataset.i)].e.name);
+  });
+  $("guessBtn").addEventListener("click", () => guess(acItems[acIndex] ? acItems[acIndex].e.name : input.value));
+  $("skipBtn").addEventListener("click", () => $("skipBtn").dataset.broken ? giveUpBroken() : skip());
+  $("playBtn").addEventListener("click", playClip);
+  $("nextBtn").addEventListener("click", next);
+  $("copyBtn").addEventListener("click", copyShare);
+  $("practiceBtn").addEventListener("click", () => startGame("practice"));
+  $("backDailyBtn").addEventListener("click", () => startGame("daily"));
+  $("vol").addEventListener("input", (e) => { store.set("luandle:vol", Number(e.target.value)); if (ready) player.setVolume(Number(e.target.value)); });
+  document.addEventListener("keydown", (e) => {
+    if (e.target === input) return;
+    if (e.code === "Space" && !$("playBtn").disabled) { e.preventDefault(); playClip(); }
+  });
+
+  // ---------- Início ----------
+  const savedVol = store.get("luandle:vol");
+  if (typeof savedVol === "number") $("vol").value = savedVol;
+  if (location.protocol === "file:") $("fileBanner").hidden = false;
+  if (SONGS.length < ROUNDS) { setHint("A lista precisa de pelo menos 5 músicas diferentes."); }
+  renderTicks();
+  startGame("daily");
+  tickCountdown();
+  setInterval(tickCountdown, 1000);
+
+  // expõe para testes/curadoria no console
+  window.LUANDLE = { pickSongs, dayNumber, todayKey, catalog, search };
+})();
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
