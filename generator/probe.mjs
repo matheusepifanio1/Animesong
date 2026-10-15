@@ -32,8 +32,5 @@ if (first) {
   console.log(execFileSync("ffprobe", ["-v","error","-show_entries","format=duration,format_name:stream=codec_name,sample_rate,channels","-of","json", first]).toString());
   const t0 = Date.now();
   execFileSync("ffmpeg", ["-v","error","-y","-ss","20","-t","16.5","-i",first,"-ac","1","-b:a","96k","/tmp/clip.mp3"]);
-  console.log("cut ms", Date.now()-t0, require_size());
+  console.log("cut ms", Date.now()-t0, fs.statSync("/tmp/clip.mp3").size);
 }
-function require_size(){ try { return (awaitSize()); } catch(e){ return e.message } }
-function awaitSize(){ return String(globalThis.process ? (await_fs()) : 0); }
-function await_fs(){ const fs = globalThis.fsMod; return fs ? fs.statSync("/tmp/clip.mp3").size : "?"; }

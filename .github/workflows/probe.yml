@@ -2,6 +2,8 @@ name: probe
 on:
   push:
     branches: [probe]
+permissions:
+  contents: write
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -9,5 +11,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: ffmpeg -version | head -1 || sudo apt-get install -y ffmpeg
-      - run: node generator/probe.mjs
+      - run: (ffmpeg -version | head -1) || sudo apt-get install -y ffmpeg
+      - run: node generator/probe.mjs > probe-out.txt 2>&1 || true
+      - name: publish output
+        run: |
+          git config user.name bot; git config user.email bot@users.noreply.github.com
+          git checkout --orphan probe-out
+          git rm -rfq --cached . ; git add -f probe-out.txt
+          git commit -qm out && git push -f origin probe-out
