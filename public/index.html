@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>OPdle</title>
 <meta name="description" content="Adivinhe o anime pela abertura. 5 por dia, iguais para todo mundo.">
+<!-- prévia do link (WhatsApp, X, Discord). Se o endereço do site mudar, atualize as URLs abaixo. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OPdle">
+<meta property="og:title" content="OPdle · adivinhe o anime pela abertura">
+<meta property="og:description" content="5 aberturas por dia, iguais para todo mundo. Jogue e compare com seus amigos.">
+<meta property="og:url" content="https://opdle.cckawaii.workers.dev/">
+<meta property="og:image" content="https://opdle.cckawaii.workers.dev/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%2315172a'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%23ff2e57'/%3E%3Ccircle cx='32' cy='32' r='4' fill='%2315172a'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon.png">
 <meta name="theme-color" content="#eceef4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -246,6 +259,31 @@ footer button { background: none; border: 0; text-decoration: underline; padding
 .arch button.cur { border-color: var(--ink); }
 .status { padding: 24px 0; text-align: center; color: var(--muted); }
 .status b { display: block; color: var(--ink); font-size: 17px; margin-bottom: 6px; }
+.crowd { margin: 0; font-size: 14px; color: var(--muted); }
+.crowd b { color: var(--ink); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.field input { flex: 1; min-width: 0; height: 46px; padding: 0 14px; border-radius: 12px; border: 2px solid var(--ink); background: var(--surface); font-size: 16px; outline: none; }
+.glist { display: grid; gap: 12px; }
+.gcard { background: var(--surface); border-radius: 14px; padding: 12px; display: grid; gap: 10px; border: 1.5px solid var(--line); }
+.gcard-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.gcard-head b { font-size: 17px; }
+.gcard-head span { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+.rank { width: 100%; border-collapse: collapse; font-size: 14px; }
+.rank th { white-space: nowrap; font-size: 11px; font-weight: 500; color: var(--muted); text-align: right; padding: 0 4px 4px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .05em; }
+.rank th:nth-child(2) { text-align: left; }
+.rank td { padding: 6px 4px; border-top: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+.rank td:first-child { width: 26px; text-align: left; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+.rank td:nth-child(2) { text-align: left; max-width: 0; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank tr.me td:nth-child(2) { font-weight: 700; }
+.rank .pend { color: var(--muted); font-size: 12px; }
+.gbtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.gbtns .btn { min-height: 38px; padding: 0 12px; font-size: 14px; }
+.gbtns .btn.ghost { border-color: var(--line); color: var(--muted); }
+.invite { background: var(--surface); border: 2px solid var(--accent); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
+.invite p { margin: 0; }
+.mini-rank { display: grid; gap: 6px; }
+.mini-rank .gcard { padding: 10px 12px; }
 .toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 14px); transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-size: 14px; }
 </style>
 </head>
@@ -258,6 +296,7 @@ footer button { background: none; border: 0; text-decoration: underline; padding
       <span><b id="dayNum">#–</b></span>
       <span><b id="scoreNow">0</b>/30</span>
       <button class="iconbtn" id="archBtn" aria-label="Dias anteriores"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+      <button class="iconbtn" id="groupsBtn" aria-label="Grupos e ranking"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 6h3v2a3 3 0 0 1-3 3M7 6H4v2a3 3 0 0 0 3 3"/></svg></button>
       <button class="iconbtn" id="statsBtn" aria-label="Estatísticas"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6"/></svg></button>
       <button class="iconbtn" id="helpBtn" aria-label="Como jogar">?</button>
     </div>
@@ -287,6 +326,7 @@ footer button { background: none; border: 0; text-decoration: underline; padding
     <div class="hints" id="hints" hidden></div>
     <ul class="guesses" id="guesses" hidden></ul>
     <p class="empty" id="emptyHint" hidden>Toque ▶ para ouvir. Cada erro ou pulo libera mais tempo.</p>
+    <p class="crowd" id="crowd" hidden></p>
     <div class="links" id="revLinks" hidden></div>
 
     <section id="summaryArea" class="summary" hidden>
@@ -297,6 +337,7 @@ footer button { background: none; border: 0; text-decoration: underline; padding
         <button class="btn primary" id="copyBtn">Compartilhar</button>
         <button class="btn" id="sumStatsBtn">Estatísticas</button>
       </div>
+      <div class="mini-rank" id="miniRank" hidden></div>
       <ol class="songlist" id="songList"></ol>
       <p class="next" id="nextLine">Próximo desafio em <b id="countdown">--:--:--</b></p>
     </section>
@@ -344,6 +385,24 @@ footer button { background: none; border: 0; text-decoration: underline; padding
   </div>
 </div>
 
+<div class="sheet" id="groupsSheet" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="groupsTitle">
+    <div class="sheet-head"><h2 id="groupsTitle">Grupos</h2><button class="iconbtn" data-close aria-label="Fechar">✕</button></div>
+    <div class="invite" id="inviteBox" hidden></div>
+    <div class="field">
+      <label for="nameIn">Seu nome no ranking</label>
+      <div class="inrow"><input id="nameIn" maxlength="24" autocomplete="nickname" placeholder="Como seus amigos te chamam"><button class="btn" id="nameSave">Salvar</button></div>
+    </div>
+    <div id="groupList" class="glist"></div>
+    <div class="field">
+      <label for="newGroupIn">Criar um grupo</label>
+      <div class="inrow"><input id="newGroupIn" maxlength="30" placeholder="Ex.: Otakus do zap"><button class="btn primary" id="newGroupBtn">Criar</button></div>
+      <p class="empty">Depois é só mandar o convite no WhatsApp. Quem abrir o link entra no grupo.</p>
+    </div>
+    <p class="hint" id="groupsHint" role="status"></p>
+  </div>
+</div>
+
 <div class="sheet" id="archSheet" hidden>
   <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="archTitle">
     <div class="sheet-head"><h2 id="archTitle">Dias anteriores</h2><button class="iconbtn" data-close aria-label="Fechar">✕</button></div>
@@ -362,6 +421,7 @@ footer button { background: none; border: 0; text-decoration: underline; padding
   const GENRE_AFTER = 3;    // depois de 3 tentativas: gêneros e ano
   const PROTAG_AFTER = 5;   // na última tentativa: protagonista
   const GAMES_KEY = "opdle:games:v1";
+  const PLAYER_KEY = "opdle:player", NAME_KEY = "opdle:name";
 
   const $ = (id) => document.getElementById(id);
   const pad = (n) => String(n).padStart(2, "0");
@@ -374,6 +434,22 @@ footer button { background: none; border: 0; text-decoration: underline; padding
   const addDays = (d, n) => { const t = new Date(d + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
   const fmtDate = (d) => new Date(d + "T12:00:00Z").toLocaleDateString("pt-BR", { day: "2-digit", month: "short", timeZone: "UTC" }).replace(".", "");
   const todayBRT = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
+
+  // ---------- jogador (id aleatório guardado no aparelho) ----------
+  let player = store.get(PLAYER_KEY);
+  if (!player || !/^[a-z0-9-]{16,64}$/.test(player)) {
+    player = (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
+    store.set(PLAYER_KEY, player);
+  }
+  let myName = store.get(NAME_KEY) || "";
+  let myGroups = [];
+  let crowd = null;            // estatísticas do dia carregado
+  const api = async (path, body) => {
+    const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player, name: myName, ...body }) } : {});
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || "Falha de conexão.");
+    return d;
+  };
 
   // ---------- estado ----------
   let games = store.get(GAMES_KEY) || {};
@@ -423,7 +499,25 @@ footer button { background: none; border: 0; text-decoration: underline; padding
     // aquece o cache dos trechos do dia
     puzzle.rounds.forEach((x, i) => { if (i !== game.current) fetch(clipUrl(x)).catch(() => {}); });
     setTrack();
+    crowd = null;
     render();
+    refreshCrowd();
+    submitResult();
+  }
+
+  async function refreshCrowd() {
+    if (!puzzle) return;
+    const date = puzzle.date;
+    try { const d = await api("api/stats?date=" + date); if (puzzle.date === date) { crowd = d; render(); } } catch { /* sem estatística, segue */ }
+  }
+
+  async function submitResult() {
+    if (!puzzle || !game.finished || game.submitted || puzzle.date !== today) return;
+    try {
+      await api("api/result", { date: puzzle.date, attempts: game.rounds.map((r) => (r.won ? r.guesses.length : 0)) });
+      game.submitted = true; saveGames();
+      refreshCrowd(); refreshGroups();
+    } catch { /* tenta de novo na próxima vez que abrir */ }
   }
 
   function showStatus(title, text) {
@@ -498,7 +592,7 @@ footer button { background: none; border: 0; text-decoration: underline; padding
   function next() {
     stopClip();
     if (game.current < ROUNDS - 1) game.current++;
-    else { game.finished = true; game.score = scoreOf(game); if (!game.playedOn) game.playedOn = today; }
+    else { game.finished = true; game.score = scoreOf(game); if (!game.playedOn) game.playedOn = today; submitResult(); }
     saveGames(); setTrack(); render();
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (game.finished && !isArchive()) setTimeout(() => openSheet("statsSheet"), 900);
@@ -548,7 +642,9 @@ footer button { background: none; border: 0; text-decoration: underline; padding
     return g.rounds.map((r) => r.broken ? "⚠️" : CLIPS.map((_, i) => { const x = r.guesses[i]; return !x ? "⬜" : x.type === "correct" ? "🟩" : x.type === "skip" ? "⬛" : "🟥"; }).join("")).join("\n");
   }
   async function share() {
-    const text = `OPdle #${puzzle.number} · ${scoreOf(game)}/30\n${shareRows(game)}\n${location.host}${location.pathname.replace(/index\.html$/, "")}`;
+    const base = location.origin + location.pathname.replace(/index\.html$/, "");
+    const g = myGroups[0];
+    const text = `OPdle #${puzzle.number} · ${scoreOf(game)}/30\n${shareRows(game)}\n` + (g ? `Ranking do grupo ${g.name}: ${base}?g=${g.code}` : base);
     try {
       if (navigator.share && matchMedia("(pointer: coarse)").matches) { await navigator.share({ text }); return; }
       await navigator.clipboard.writeText(text); toast("Resultado copiado");
@@ -627,7 +723,13 @@ footer button { background: none; border: 0; text-decoration: underline; padding
     $("guesses").innerHTML = wrong.map(({ g, i }) => `<li class="wrong"><b>${CLIPS[i]}s</b><span>${esc(g.text)}</span></li>`).join("");
     $("guesses").hidden = game.finished || !wrong.length;
     $("emptyHint").hidden = !playingRound || r.guesses.length > 0;
-    $("revLinks").hidden = true;
+    $("revLinks").hidden = !revealed;
+    if (revealed) $("revLinks").innerHTML = themeLinks(x);
+    const rc = crowd && crowd.rounds[game.current];
+    $("crowd").hidden = !revealed || !crowd;
+    if (revealed && crowd) $("crowd").innerHTML = crowd.players
+      ? `<b>${rc.pct}%</b> de quem já terminou hoje acertou esta (${crowd.players} ${crowd.players === 1 ? "pessoa" : "pessoas"}).`
+      : "Você está entre os primeiros a jogar este dia.";
 
     // rodapé
     $("dock").hidden = game.finished;
@@ -645,8 +747,10 @@ footer button { background: none; border: 0; text-decoration: underline; padding
       $("shareGrid").textContent = shareRows(game);
       $("songList").innerHTML = puzzle.rounds.map((p, i) => {
         const y = game.rounds[i];
-        return `<li><span class="pts">${y.won ? "+" + roundPoints(y) : "0"}</span><span><b>${esc(p.answer)}</b> · ${esc(songLine(p))}</span></li>`;
+        const pct = crowd && crowd.players ? ` · <span class="pend">${crowd.rounds[i].pct}% acertaram</span>` : "";
+        return `<li><span class="pts">${y.won ? "+" + roundPoints(y) : "0"}</span><span><b>${esc(p.answer)}</b> · ${esc(songLine(p))}${pct}<br>${themeLinks(p)}</span></li>`;
       }).join("");
+      renderMiniRank();
       $("nextLine").hidden = isArchive();
     }
   }
@@ -686,8 +790,122 @@ footer button { background: none; border: 0; text-decoration: underline; padding
     }
     $("archList").innerHTML = items.join("");
   }
-  function openSheet(id) { if (id === "statsSheet") renderStats(); else renderArchive(); $(id).hidden = false; }
-  function closeSheets() { $("statsSheet").hidden = true; $("archSheet").hidden = true; }
+  function openSheet(id) {
+    if (id === "statsSheet") renderStats(); else if (id === "archSheet") renderArchive(); else renderGroups();
+    $(id).hidden = false;
+    if (id === "groupsSheet") refreshGroups();
+  }
+  function closeSheets() { ["statsSheet", "archSheet", "groupsSheet"].forEach((id) => { $(id).hidden = true; }); }
+
+  // ---------- links da abertura ----------
+  function themeLinks(x) {
+    const out = [];
+    if (x.themeKey && x.slug && x.themeKey.endsWith("-" + x.slug)) {
+      const animeSlug = x.themeKey.slice(0, -(x.slug.length + 1));
+      out.push(`<a href="https://animethemes.moe/anime/${encodeURIComponent(animeSlug)}/${encodeURIComponent(x.slug)}" target="_blank" rel="noopener">▶ Ver a abertura</a>`);
+    }
+    const q = encodeURIComponent([x.answer, x.slug, x.song].filter(Boolean).join(" "));
+    out.push(`<a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">YouTube</a>`);
+    return out.join(" · ");
+  }
+
+  // ---------- grupos e ranking ----------
+  const rankings = new Map(); // code -> ranking
+  let pendingInvite = null;
+  async function refreshGroups() {
+    try {
+      myGroups = (await api("api/groups?player=" + player)).groups || [];
+      await Promise.all(myGroups.map(async (g) => { try { rankings.set(g.code, await api(`api/group/${g.code}?player=${player}`)); } catch { /* */ } }));
+    } catch { /* sem conexão */ }
+    if (!$("groupsSheet").hidden) renderGroups();
+    renderMiniRank();
+  }
+  function rankTable(rk, limit) {
+    const rows = rk.members.slice().sort((a, b) => (b.today ?? -1) - (a.today ?? -1) || b.week - a.week || a.name.localeCompare(b.name));
+    const shown = limit ? rows.slice(0, limit) : rows;
+    return `<table class="rank"><thead><tr><th></th><th></th><th>Hoje</th><th>7&nbsp;dias</th></tr></thead><tbody>${shown.map((m, i) => `
+      <tr class="${m.me ? "me" : ""}"><td>${m.today != null ? i + 1 + "º" : "–"}</td><td>${esc(m.name)}${m.me ? " (você)" : ""}</td>
+      <td>${m.today != null ? m.today : '<span class="pend">ainda não</span>'}</td><td>${m.week}</td></tr>`).join("")}</tbody></table>`;
+  }
+  function renderGroups() {
+    $("nameIn").value = $("nameIn").value || myName;
+    $("inviteBox").hidden = !pendingInvite;
+    if (pendingInvite) {
+      $("inviteBox").innerHTML = `<p>Você foi convidado para o grupo <b>${esc(pendingInvite.name)}</b> (${pendingInvite.members} ${pendingInvite.members === 1 ? "pessoa" : "pessoas"}).</p>
+        <p class="empty">Coloque seu nome abaixo e entre. Seu resultado de cada dia aparece no ranking do grupo.</p>
+        <button class="btn primary" id="joinBtn">Entrar no grupo</button>`;
+      $("joinBtn").onclick = joinPending;
+    }
+    $("groupList").innerHTML = myGroups.length ? myGroups.map((g) => {
+      const rk = rankings.get(g.code);
+      return `<div class="gcard"><div class="gcard-head"><b>${esc(g.name)}</b><span>${g.members} ${g.members === 1 ? "pessoa" : "pessoas"}</span></div>
+        ${rk ? rankTable(rk) : '<p class="empty">Carregando ranking…</p>'}
+        <div class="gbtns"><button class="btn primary" data-invite="${g.code}">Convidar</button><button class="btn ghost" data-leave="${g.code}">Sair</button></div></div>`;
+    }).join("") : '<p class="empty">Você ainda não está em nenhum grupo. Crie um e chame seus amigos.</p>';
+  }
+  function renderMiniRank() {
+    const box = $("miniRank");
+    const g = myGroups[0], rk = g && rankings.get(g.code);
+    box.hidden = !(game && game.finished && rk && !isArchive());
+    if (box.hidden) return;
+    box.innerHTML = `<div class="gcard"><div class="gcard-head"><b>${esc(g.name)}</b><span>ranking de hoje</span></div>${rankTable(rk, 6)}
+      <div class="gbtns"><button class="btn" data-open-groups>Ver grupos</button></div></div>`;
+  }
+  function needName() {
+    const v = $("nameIn").value.trim();
+    if (!v) { $("groupsHint").textContent = "Coloque seu nome para aparecer no ranking."; $("nameIn").focus(); return null; }
+    if (v !== myName) { myName = v; store.set(NAME_KEY, v); }
+    return v;
+  }
+  async function saveName() {
+    if (!needName()) return;
+    try { await api("api/name", {}); $("groupsHint").textContent = ""; toast("Nome salvo"); refreshGroups(); } catch (e) { $("groupsHint").textContent = e.message; }
+  }
+  async function createGroup() {
+    if (!needName()) return;
+    const groupName = $("newGroupIn").value.trim();
+    if (!groupName) { $("groupsHint").textContent = "Dê um nome ao grupo."; return; }
+    try {
+      const g = await api("api/group", { groupName });
+      $("newGroupIn").value = ""; $("groupsHint").textContent = "";
+      await refreshGroups();
+      invite(g.code);
+    } catch (e) { $("groupsHint").textContent = e.message; }
+  }
+  async function joinPending() {
+    if (!needName()) return;
+    try {
+      await api("api/group/join", { code: pendingInvite.code });
+      toast(`Você entrou em ${pendingInvite.name}`);
+      pendingInvite = null; renderGroups(); refreshGroups();
+    } catch (e) { $("groupsHint").textContent = e.message; }
+  }
+  async function leaveGroup(code) {
+    const g = myGroups.find((x) => x.code === code);
+    const btn = document.querySelector(`[data-leave="${code}"]`);
+    if (btn && btn.dataset.confirm !== "1") { btn.dataset.confirm = "1"; btn.textContent = "Toque de novo para sair"; return; }
+    try { await api("api/group/leave", { code }); toast(`Você saiu de ${g ? g.name : "grupo"}`); refreshGroups(); } catch (e) { $("groupsHint").textContent = e.message; }
+  }
+  async function invite(code) {
+    const g = myGroups.find((x) => x.code === code);
+    const link = location.origin + location.pathname.replace(/index\.html$/, "") + "?g=" + code;
+    const text = `Bora jogar OPdle comigo? Adivinhe o anime pela abertura, 5 por dia. Entra no grupo ${g ? g.name : ""}: ${link}`;
+    try {
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) { await navigator.share({ text }); return; }
+      await navigator.clipboard.writeText(text); toast("Convite copiado");
+    } catch (e) { if (!e || e.name !== "AbortError") toast(link); }
+  }
+  async function checkInvite() {
+    const code = new URLSearchParams(location.search).get("g");
+    if (!code || !/^[a-z0-9]{6}$/.test(code)) return;
+    history.replaceState(null, "", location.pathname);
+    try {
+      const info = await api(`api/group/${code}/info`);
+      await refreshGroups();
+      if (myGroups.some((g) => g.code === code)) return;
+      pendingInvite = info; openSheet("groupsSheet");
+    } catch { toast("Esse convite não vale mais."); }
+  }
 
   // ---------- contagem até o próximo desafio ----------
   function tick() {
@@ -715,6 +933,16 @@ footer button { background: none; border: 0; text-decoration: underline; padding
   $("nextBtn").addEventListener("click", next);
   $("copyBtn").addEventListener("click", share);
   $("sumStatsBtn").addEventListener("click", () => openSheet("statsSheet"));
+  $("groupsBtn").addEventListener("click", () => openSheet("groupsSheet"));
+  $("nameSave").addEventListener("click", saveName);
+  $("newGroupBtn").addEventListener("click", createGroup);
+  $("nameIn").addEventListener("keydown", (e) => { if (e.key === "Enter") saveName(); });
+  $("newGroupIn").addEventListener("keydown", (e) => { if (e.key === "Enter") createGroup(); });
+  $("groupList").addEventListener("click", (e) => {
+    const inv = e.target.closest("[data-invite]"); if (inv) return invite(inv.dataset.invite);
+    const lv = e.target.closest("[data-leave]"); if (lv) return leaveGroup(lv.dataset.leave);
+  });
+  $("miniRank").addEventListener("click", (e) => { if (e.target.closest("[data-open-groups]")) openSheet("groupsSheet"); });
   $("statsBtn").addEventListener("click", () => openSheet("statsSheet"));
   $("archBtn").addEventListener("click", () => openSheet("archSheet"));
   $("helpBtn").addEventListener("click", () => { const d = $("how"); d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); });
@@ -732,6 +960,8 @@ footer button { background: none; border: 0; text-decoration: underline; padding
   if (typeof savedVol === "number") { $("vol").value = savedVol; audio.volume = savedVol / 100; } else audio.volume = 0.7;
   renderTicks();
   if (!Object.keys(games).length) $("how").open = true;
+  refreshGroups();
+  checkInvite();
   Promise.all([loadCatalog(), loadPuzzle()]).then(render).catch(() => showStatus("Não deu para carregar o jogo.", "Confira sua internet e tente de novo."));
   setInterval(tick, 1000); tick();
   window.OPDLE = { stats, search };

@@ -84,6 +84,8 @@ jobs:
           curl -sf -o /dev/null -w "catalog: %{http_code} %{size_download} bytes\n" "$URL/catalog.json" | tee -a run.log
           curl -s -o /dev/null -w "futuro: %{http_code}\n" "$URL/api/puzzle?date=2099-01-01" | tee -a run.log
           curl -sf -o /dev/null -w "luan: %{http_code}\n" "$URL/luan/" | tee -a run.log
+          curl -sf -w "\nstats: %{http_code}\n" "$URL/api/stats" | tee -a run.log
+          curl -sf -o /dev/null -w "og.png: %{http_code} %{content_type}\n" "$URL/og.png" | tee -a run.log
       - name: Guardar log
         if: always()
         run: |

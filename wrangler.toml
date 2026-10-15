@@ -11,3 +11,12 @@ binding = "ASSETS"
 [[kv_namespaces]]
 binding = "KV"
 id = "KV_NAMESPACE_ID"
+
+# Banco de resultados, estatísticas e grupos (Durable Object com SQLite, plano grátis)
+[[durable_objects.bindings]]
+name = "DB"
+class_name = "OpdleDB"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["OpdleDB"]
