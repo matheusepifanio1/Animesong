@@ -73,8 +73,19 @@ jobs:
           sed -i "s/KV_NAMESPACE_ID/$NS/" wrangler.toml
       - name: Publicar na Cloudflare
         run: npx --yes "wrangler@${WRANGLER_VERSION}" deploy 2>&1 | tee -a run.log
-      - name: Guardar log da falha
-        if: failure()
+      - name: Conferir o site no ar
+        run: |
+          URL=$(grep -o 'https://[a-z0-9.-]*workers\.dev' run.log | head -1)
+          echo "Site: $URL" | tee -a run.log
+          sleep 5
+          P=$(curl -sf "$URL/api/puzzle") || { echo "FALHOU /api/puzzle" | tee -a run.log; exit 1; }
+          echo "$P" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);console.log("Desafio de hoje:",p.date,"#"+p.number,p.rounds.map(r=>r.answer).length+" rodadas");require("fs").writeFileSync("clip.txt",p.rounds[0].clip)})' | tee -a run.log
+          curl -sf -o /dev/null -w "clip: %{http_code} %{content_type} %{size_download} bytes\n" "$URL/api/clip/$(cat clip.txt)" | tee -a run.log
+          curl -sf -o /dev/null -w "catalog: %{http_code} %{size_download} bytes\n" "$URL/catalog.json" | tee -a run.log
+          curl -s -o /dev/null -w "futuro: %{http_code}\n" "$URL/api/puzzle?date=2099-01-01" | tee -a run.log
+          curl -sf -o /dev/null -w "luan: %{http_code}\n" "$URL/luan/" | tee -a run.log
+      - name: Guardar log
+        if: always()
         run: |
           cp run.log /tmp/run.log 2>/dev/null || echo "sem log" > /tmp/run.log
           cd /tmp && rm -rf logrepo && mkdir logrepo && cd logrepo && git init -q && cp /tmp/run.log .
