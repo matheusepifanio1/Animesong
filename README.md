@@ -1,40 +1,40 @@
-# OPdle e Luandle
+# OPdle
 
-Jogos diários de adivinhar a música pelo trecho. 5 por dia, iguais para todo mundo, com trechos de 1s → 2s → 4s → 7s → 11s → 16s.
+Jogo diário: adivinhe o anime pela abertura. 5 aberturas por dia, iguais para todo mundo, da mais conhecida (1) para a menos conhecida (5). Trechos de 1s → 2s → 4s → 7s → 11s → 16s; depois de 3 tentativas aparecem os gêneros e o ano, na última o protagonista.
 
-- `/` — **OPdle**: adivinhe o anime pela abertura.
-- `/luan/` — **Luandle**: adivinhe a música do Luan Santana.
+Também no ar: `/luan/` (Luandle) e `/palpite/` (Palpite Otaku).
 
-## Áudio
+## Como está montado
 
-O áudio vem das prévias oficiais de 30s da Apple Music/iTunes. O navegador busca cada música na API pública do iTunes (JSONP, sem chave), descarta versões ao vivo, acústicas, remix e instrumentais, e guarda o resultado em cache. Funciona em qualquer hospedagem estática, inclusive abrindo o arquivo direto do disco.
-
-## Conferir as músicas
-
-Abra `index.html#conferir` (ou `luan/#conferir`). Para cada música aparece a faixa que o iTunes achou, com capa e álbum. Dá para:
-
-- ouvir 2s ou a prévia inteira;
-- trocar para outro resultado, se a faixa estiver errada;
-- marcar ou ajustar o segundo em que o trecho começa.
-
-As escolhas valem no aparelho na hora. **Copiar lista** gera um texto com o `trackId` e o `start` de cada música para fixar no `songs.js`, e aí vale para todo mundo.
-
-## Adicionar músicas
-
-```js
-{ anime: "Haikyuu!!", aliases: ["ハイキュー!!"], song: "Imagination", artist: "SPYAIR",
-  itunes: { term: "SPYAIR Imagination", artist: "SPYAIR", title: ["Imagination"] },
-  start: 0, tier: 1 }
+```
+public/            site (OPdle em index.html, Luandle e Palpite Otaku em subpastas)
+worker/index.js    Worker da Cloudflare: serve o site e a API
+generator/         gerador de desafios (roda no GitHub Actions)
+wrangler.toml      configuração do Worker
+.github/workflows/opdle.yml   gera e publica
 ```
 
-- `anime` é a resposta (no Luandle, o nome da música).
-- `itunes.artist` e `itunes.title` aceitam listas, útil para nomes em japonês.
-- `trackId` (opcional) fixa a faixa e pula a busca.
-- `tier` 1 vai para as primeiras rodadas do dia; 2 para as últimas.
+- **Cloudflare Worker** serve o site e três rotas:
+  - `GET /api/puzzle` desafio de hoje (horário de Brasília); `?date=AAAA-MM-DD` para dias passados. Dias futuros são recusados.
+  - `GET /api/clip/<id>` trecho de áudio (MP3, 16,5 s).
+  - `GET /catalog.json` lista de animes para o autocompletar.
+- **Cloudflare KV** (`opdle-data`) guarda desafios, trechos, catálogo e o histórico do gerador.
+- **Histórico do jogador** fica no `localStorage` do navegador: sequência, média, distribuição e arquivo de dias anteriores.
 
-## Como funciona
+## Gerador
 
-- **Sorteio do dia**: a data local vira a seed de um PRNG que escolhe 5 respostas diferentes.
-- **Progresso**: salvo no `localStorage` por data.
-- **Pontos**: acertar na tentativa *n* (1 a 6) vale `7 - n`. Máximo 30.
-- **Compartilhar**: 🟩 acerto, 🟥 erro, ⬛ pulo, ⬜ não usado.
+`generator/generate.mjs`:
+1. Pega os 1500 animes mais populares do [AniList](https://anilist.co) e agrupa temporadas, filmes e histórias paralelas por franquia (qualquer uma vale como resposta).
+2. Busca as aberturas no [AnimeThemes](https://animethemes.moe).
+3. Para cada dia que falta (até 35 dias à frente), escolhe uma franquia por faixa de popularidade:
+   1: top 40 · 2: 40–120 · 3: 120–300 · 4: 300–600 · 5: 600–1200.
+   Mesma franquia só volta depois de 30 dias; mesma abertura depois de 90 e sempre com outro trecho (20 s de distância, no mínimo).
+4. Escolhe um trecho que começa com som (sem silêncio no 1º segundo), corta 16,5 s, normaliza o volume e salva com nome aleatório.
+
+Dias já gerados nunca mudam. Novos animes só entram em dias futuros.
+
+## Publicação
+
+O workflow roda toda segunda-feira, a cada push na `main` e quando disparado à mão (Actions → OPdle → Run workflow). Precisa dos segredos `CLOUDFLARE_API_TOKEN` (modelo "Edit Cloudflare Workers") e `CLOUDFLARE_ACCOUNT_ID`. O namespace do KV é criado sozinho na primeira execução.
+
+Se algo falhar, o log fica no branch `opdle-logs`.

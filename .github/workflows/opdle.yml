@@ -1,0 +1,83 @@
+name: OPdle
+
+# - Toda segunda-feira (e quando disparado à mão): gera os desafios que faltam até 35 dias à frente,
+#   envia para o KV da Cloudflare e publica o site.
+# - A cada push na main que mexe no site/worker: confere se falta algum dia e publica.
+# Se algo falhar, o log vai para o branch "opdle-logs" (o log das Actions não é acessível por fora).
+on:
+  schedule:
+    - cron: "17 6 * * 1"   # segunda, 03:17 em Brasília
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Quantos dias à frente manter prontos"
+        default: "35"
+  push:
+    branches: [main]
+    paths: ["public/**", "worker/**", "generator/**", "wrangler.toml", ".github/workflows/opdle.yml"]
+
+concurrency:
+  group: opdle
+  cancel-in-progress: false
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  WRANGLER_VERSION: "4.140.0"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash -o pipefail {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Instalar ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+      - name: Baixar histórico
+        run: node generator/kv.mjs pull-state state.json 2>&1 | tee -a run.log
+      - name: Gerar desafios
+        run: node generator/generate.mjs --state state.json --out out --days "${{ github.event.inputs.days || '35' }}" 2>&1 | tee -a run.log
+      - name: Enviar para o KV
+        run: node generator/kv.mjs push out 2>&1 | tee -a run.log
+      - name: Guardar log da falha
+        if: failure()
+        run: |
+          cp run.log /tmp/run.log 2>/dev/null || echo "sem log" > /tmp/run.log
+          cd /tmp && rm -rf logrepo && mkdir logrepo && cd logrepo && git init -q && cp /tmp/run.log . 
+          git config user.name bot && git config user.email bot@users.noreply.github.com
+          git checkout -q -b opdle-logs && git add run.log && git commit -qm "log ${{ github.run_id }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" opdle-logs
+
+  deploy:
+    needs: generate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash -o pipefail {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Preparar configuração
+        run: |
+          NS=$(node generator/kv.mjs ns 2>>run.log)
+          sed -i "s/KV_NAMESPACE_ID/$NS/" wrangler.toml
+      - name: Publicar na Cloudflare
+        run: npx --yes "wrangler@${WRANGLER_VERSION}" deploy 2>&1 | tee -a run.log
+      - name: Guardar log da falha
+        if: failure()
+        run: |
+          cp run.log /tmp/run.log 2>/dev/null || echo "sem log" > /tmp/run.log
+          cd /tmp && rm -rf logrepo && mkdir logrepo && cd logrepo && git init -q && cp /tmp/run.log .
+          git config user.name bot && git config user.email bot@users.noreply.github.com
+          git checkout -q -b opdle-logs && git add run.log && git commit -qm "log ${{ github.run_id }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" opdle-logs
