@@ -1,0 +1,13 @@
+name: probe
+on:
+  push:
+    branches: [probe]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: ffmpeg -version | head -1 || sudo apt-get install -y ffmpeg
+      - run: node generator/probe.mjs
