@@ -11,11 +11,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: (ffmpeg -version | head -1) || sudo apt-get install -y ffmpeg
-      - run: node generator/probe.mjs > probe-out.txt 2>&1 || true
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+      - run: |
+          npm view wrangler dist-tags --json > wrangler-ver.txt 2>&1 || true
+          node generator/generate.mjs --out out --state none.json --from 2026-10-16 --max-new 3 > gen-log.txt 2>&1 || echo FAILED >> gen-log.txt
       - name: publish output
         run: |
           git config user.name bot; git config user.email bot@users.noreply.github.com
           git checkout --orphan probe-out
-          git rm -rfq --cached . ; git add -f probe-out.txt
+          git rm -rfq --cached . ; rm -rf out/tmp-*
+          git add -f gen-log.txt wrangler-ver.txt out || true
           git commit -qm out && git push -f origin probe-out
