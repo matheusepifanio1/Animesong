@@ -473,6 +473,7 @@ footer button { background: none; border: 0; text-decoration: underline; padding
     if (r.done) stopClip();
   }
   function commit() {
+    $("how").open = false;
     if (game.rounds.every((r) => r.done) && !game.finished) { /* espera o "ver resultado" */ }
     saveGames(); render();
   }
