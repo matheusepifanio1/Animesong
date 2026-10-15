@@ -2,17 +2,17 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Luandle</title>
-<meta name="description" content="Adivinhe a música do Luan Santana pela introdução. 5 por dia.">
+<meta name="description" content="Adivinhe a música do Luan Santana pelo trecho. 5 por dia.">
+<meta name="theme-color" content="#f6ead8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rye&family=Nunito:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Layout: uma coluna como um cartaz de rodeio ao pôr do sol; o disco é o palco, o resto é controle. */
+/* Layout: app de uma coluna; topo enxuto, player compacto e uma barra fixa no rodapé com a ação principal ao alcance do polegar. */
 :root {
   --bg: #f6ead8;
-  --dot: #ead6b8;
   --surface: #fffaf2;
   --ink: #2b1a12;
   --muted: #7a6152;
@@ -23,7 +23,7 @@
   --good: #2f8a3e;
   --bad: #c8322b;
   --skip: #9b8676;
-  --stage: #2b1a12;
+  --stage: #3a2116;
   --stage-ink: #fff3e2;
   --font-display: "Rye", Georgia, "Times New Roman", serif;
   --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
@@ -32,14 +32,14 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1a110d; --dot: #2a1c15; --surface: #241812; --ink: #f7eadb; --muted: #bba08c;
+    --bg: #1a110d; --surface: #241812; --ink: #f7eadb; --muted: #bba08c;
     --line: #3d2b20; --accent: #ff7a2e; --accent-ink: #1a110d; --blue: #6fb3e0;
     --good: #5cc46c; --bad: #ff6a5c; --skip: #8f7a6b; --stage: #0f0906; --stage-ink: #fff3e2;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #1a110d; --dot: #2a1c15; --surface: #241812; --ink: #f7eadb; --muted: #bba08c;
+  --bg: #1a110d; --surface: #241812; --ink: #f7eadb; --muted: #bba08c;
   --line: #3d2b20; --accent: #ff7a2e; --accent-ink: #1a110d; --blue: #6fb3e0;
   --good: #5cc46c; --bad: #ff6a5c; --skip: #8f7a6b; --stage: #0f0906; --stage-ink: #fff3e2;
   color-scheme: dark;
@@ -47,319 +47,272 @@
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { margin: 0; }
-body {
-  background-color: var(--bg);
-  background-image: radial-gradient(var(--dot) 1.2px, transparent 1.3px);
-  background-size: 14px 14px;
-  color: var(--ink);
-  font: 15px/1.5 var(--font-body);
-  padding-inline: 16px;
-  padding-block: calc(env(safe-area-inset-top, 0px) + 20px) calc(env(safe-area-inset-bottom, 0px) + 40px);
-  -webkit-font-smoothing: antialiased;
-}
-.wrap { max-width: 560px; margin: 0 auto; display: grid; gap: 18px; }
+html, body { margin: 0; background: var(--bg); }
+body { color: var(--ink); font: 15px/1.45 var(--font-body); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
 
-/* Cabeçalho */
-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.logo {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(40px, 11vw, 58px);
-  line-height: .9;
-  margin: 0;
-  letter-spacing: -.01em;
-  transform: skew(-8deg);
-  color: var(--ink);
-  text-shadow: 4px 4px 0 var(--accent);
+.app { max-width: 520px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+
+/* topo */
+.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 8px;
 }
-.logo span { color: var(--accent); text-shadow: 4px 4px 0 var(--ink); }
-.tag { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
-.meta { display: grid; justify-items: end; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
-.meta b { color: var(--ink); font-weight: 500; }
-.chip { display: inline-block; padding: 2px 8px; border-radius: 99px; background: var(--blue); color: #fff; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.logo { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1; margin: 0; transform: skew(-8deg); text-shadow: 2px 2px 0 var(--accent); }
+.logo span { color: var(--accent); text-shadow: 2px 2px 0 var(--ink); }
+.meta { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.chip { padding: 2px 8px; border-radius: 99px; background: var(--blue); color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.iconbtn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--ink); background: var(--surface); font-weight: 700; line-height: 1; display: grid; place-items: center; padding: 0; }
 
-.banner { background: var(--surface); border: 2px solid var(--bad); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
-.banner code { font-family: var(--font-mono); background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+main { flex: 1; padding: 4px 16px 16px; display: grid; gap: 12px; align-content: start; }
 
-/* Rodadas */
+/* rodadas */
 .rounds { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-.rpill {
-  height: 34px; border-radius: 8px; display: grid; place-items: center;
-  font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums;
-  background: var(--surface); border: 2px solid var(--line); color: var(--muted);
-}
+.rpill { height: 26px; border-radius: 7px; display: grid; place-items: center; font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; background: var(--surface); border: 2px solid var(--line); color: var(--muted); }
 .rpill.now { border-color: var(--ink); color: var(--ink); }
 .rpill.won { background: var(--good); border-color: var(--good); color: #fff; }
 .rpill.lost { background: var(--bad); border-color: var(--bad); color: #fff; }
 
-/* Palco: player + capa por cima */
-.stage {
-  position: relative; aspect-ratio: 16 / 9; max-width: 100%;
-  border-radius: 14px; overflow: hidden; background: var(--stage);
-  box-shadow: 6px 6px 0 var(--ink);
-  border: 2px solid var(--ink);
+/* player compacto */
+.player {
+  background: linear-gradient(160deg, var(--stage) 0%, #5a2a14 70%, #a8481a 100%); color: var(--stage-ink); border-radius: 16px; padding: 14px;
+  display: grid; gap: 12px;
 }
-#yt, .stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.cover {
-  position: absolute; inset: 0; z-index: 2;
-  background:
-    radial-gradient(120% 90% at 50% 120%, rgba(255,140,40,.55), transparent 60%),
-    linear-gradient(180deg, #2b1a12 0%, #5a2a14 60%, #a8481a 100%);
-  color: var(--stage-ink);
-  display: flex; align-items: center; justify-content: center; gap: 22px; padding: 16px;
-  transition: opacity .5s ease;
-}
-.cover.gone { opacity: 0; pointer-events: none; }
+.prow { display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.thumb { width: 60px; height: 60px; border-radius: 10px; overflow: hidden; display: grid; place-items: center; background: #5a2a14; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .disc {
-  width: min(34vw, 150px); aspect-ratio: 1; border-radius: 50%; flex: none;
+  width: 52px; height: 52px; border-radius: 50%;
   background:
     radial-gradient(circle, var(--stage) 0 9%, var(--accent) 9.5% 30%, #111 30.5% 32%, transparent 32.5%),
     repeating-radial-gradient(circle, #1d1e2c 0 2px, #26283a 2px 4px);
-  box-shadow: 0 0 0 3px #2c2e44;
-  position: relative;
 }
-.disc::after {
-  content: ""; position: absolute; inset: 0; border-radius: 50%;
-  background: conic-gradient(from 20deg, transparent 0 10%, rgba(255,255,255,.12) 13%, transparent 17% 60%, rgba(255,255,255,.08) 63%, transparent 67%);
-}
-.cover.playing .disc { animation: spin 1.8s linear infinite; }
+.player.playing .disc { animation: spin 1.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.cover-txt { display: grid; gap: 4px; min-width: 0; }
-.cover-txt .kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
-.cover-txt .big { font-family: var(--font-display); font-size: clamp(30px, 8vw, 44px); line-height: 1; }
-.cover-txt .big em { font-style: normal; color: var(--accent); }
-.cover-err { font-size: 13px; color: #ffb3bf; max-width: 26ch; }
+.pinfo { display: grid; gap: 2px; min-width: 0; }
+.pkick { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+.pkick.won { color: #6ee7a5; opacity: 1; }
+.pkick.lost { color: #ff8a9c; opacity: 1; }
+.ptitle { font-family: var(--font-display); font-weight: 400; font-size: 19px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+.ptitle em { font-style: normal; color: var(--accent); }
+.psub { font-size: 13px; opacity: .75; overflow-wrap: anywhere; }
+.psub.err { color: #ffb3bf; opacity: 1; }
+.playbtn {
+  width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; align-content: center; gap: 0; padding: 0; flex: none;
+}
+.playbtn .ico { font-size: 18px; line-height: 1; }
+.playbtn .len { font-family: var(--font-mono); font-size: 11px; line-height: 1.2; }
+.playbtn:disabled { opacity: .4; cursor: not-allowed; }
+.playbtn:active:not(:disabled) { transform: scale(.94); }
 
-/* Linha do tempo */
-.timeline { display: grid; gap: 6px; }
-.bar { position: relative; height: 14px; border-radius: 7px; background: var(--surface); border: 2px solid var(--ink); overflow: hidden; }
-.bar .unlocked { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--line) 0 2px, transparent 2px 6px); }
-.bar .prog { position: absolute; inset: 0 auto 0 0; background: var(--accent); width: 0; }
-.bar .tick { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); opacity: .35; }
-.ticks { position: relative; height: 16px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+/* barra de tempo = tentativas */
+.timeline { display: grid; gap: 4px; }
+.bar { position: relative; height: 12px; }
+.seg { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: rgba(255,255,255,.08); }
+.seg.open { background: rgba(255,255,255,.28); }
+.seg.wrong { background: var(--bad); }
+.seg.skip { background: var(--skip); }
+.seg.correct { background: var(--good); }
+.prog { position: absolute; top: 0; bottom: 0; left: 0; width: 0; border-radius: 4px; background: var(--accent); mix-blend-mode: normal; opacity: .9; pointer-events: none; }
+.ticks { position: relative; height: 14px; font-family: var(--font-mono); font-size: 10px; opacity: .6; font-variant-numeric: tabular-nums; }
 .ticks span { position: absolute; transform: translateX(-100%); }
 
-/* Controles */
-.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+/* palpites como etiquetas */
+.guesses { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.guesses li { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 4px 10px; border-radius: 99px; font-size: 13px; background: var(--surface); border: 1.5px solid var(--line); }
+.guesses li b { font-family: var(--font-mono); font-weight: 500; font-size: 11px; color: var(--muted); }
+.guesses li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guesses li.wrong { border-color: var(--bad); }
+.guesses li.wrong span::before { content: "✕ "; color: var(--bad); font-weight: 700; }
+.guesses li.skip { color: var(--muted); }
+.empty { margin: 0; font-size: 13px; color: var(--muted); }
+
+.links { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+.links a { color: var(--blue); }
+
+/* resumo */
+.summary { background: var(--surface); border: 2px solid var(--ink); border-radius: 16px; padding: 16px; display: grid; gap: 12px; }
+.score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.score .num { font-family: var(--font-display); font-size: 52px; line-height: .9; font-variant-numeric: tabular-nums; }
+.score .of { font-family: var(--font-mono); color: var(--muted); }
+.grid-share { font-size: 20px; line-height: 1.25; letter-spacing: 2px; white-space: pre; overflow-x: auto; margin: 0; }
+.songlist { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.songlist li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; font-size: 14px; }
+.songlist .pts { font-family: var(--font-mono); font-size: 12px; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.songlist a { color: var(--blue); }
+.next { margin: 0; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.next b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pair .btn { padding: 0 8px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* botões */
 .btn {
-  border: 2px solid var(--ink); border-radius: 10px; padding: 10px 16px;
-  background: var(--surface); font-weight: 700; box-shadow: 3px 3px 0 var(--ink);
-  transition: transform .06s ease, box-shadow .06s ease;
+  border: 2px solid var(--ink); border-radius: 12px; min-height: 46px; padding: 0 16px;
+  background: var(--surface); font-weight: 700; white-space: nowrap;
 }
-.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
-.btn.primary { background: var(--accent); color: var(--accent-ink); }
-.btn.play { flex: 1 1 160px; font-size: 17px; padding: 12px 16px; }
-.vol { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
-.vol input { width: 90px; accent-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.block { width: 100%; }
 
-/* Tentativas */
-.guesses { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.guesses li {
-  min-height: 38px; border-radius: 8px; border: 2px dashed var(--line);
-  display: flex; align-items: center; gap: 10px; padding: 6px 12px; font-size: 14px; min-width: 0;
+/* barra fixa no rodapé */
+.dock {
+  position: sticky; bottom: 0; z-index: 10;
+  background: var(--bg); border-top: 1.5px solid var(--line);
+  padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px);
+  display: grid; gap: 6px;
 }
-.guesses li .n { font-family: var(--font-mono); font-size: 11px; color: var(--muted); width: 26px; flex: none; font-variant-numeric: tabular-nums; }
-.guesses li .t { min-width: 0; overflow-wrap: anywhere; }
-.guesses li.wrong { border-style: solid; border-color: var(--bad); }
-.guesses li.wrong .t::before { content: "✕ "; color: var(--bad); font-weight: 700; }
-.guesses li.skip { border-style: solid; border-color: var(--skip); color: var(--muted); }
-.guesses li.correct { border-style: solid; border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--surface)); }
-.guesses li.correct .t::before { content: "✓ "; color: var(--good); font-weight: 700; }
-
-/* Entrada com autocomplete */
-.guessbox { display: grid; gap: 8px; }
-.inrow { display: flex; gap: 8px; flex-wrap: wrap; }
-.ac { position: relative; flex: 1 1 220px; min-width: 0; }
+.inrow { display: flex; gap: 8px; }
+.ac { position: relative; flex: 1; min-width: 0; }
 .ac input {
-  width: 100%; padding: 11px 14px; border-radius: 10px; border: 2px solid var(--ink);
-  background: var(--surface); outline: none;
+  width: 100%; height: 46px; padding: 0 14px; border-radius: 12px; border: 2px solid var(--ink);
+  background: var(--surface); outline: none; font-size: 16px;
 }
 .ac input:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 40%, transparent); }
 .ac ul {
-  position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); z-index: 5;
-  margin: 0; padding: 4px; list-style: none; max-height: 240px; overflow-y: auto;
-  background: var(--surface); border: 2px solid var(--ink); border-radius: 10px;
-  box-shadow: 4px 4px 0 var(--ink);
+  position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); z-index: 20;
+  margin: 0; padding: 4px; list-style: none; max-height: min(260px, 40vh); overflow-y: auto;
+  background: var(--surface); border: 2px solid var(--ink); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.18);
 }
-.ac li { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+.ac li { padding: 11px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
 .ac li small { color: var(--muted); font-size: 12px; text-align: right; overflow-wrap: anywhere; }
 .ac li.hi { background: var(--accent); color: var(--accent-ink); }
 .ac li.hi small { color: var(--accent-ink); opacity: .85; }
-.hint { min-height: 20px; font-size: 13px; color: var(--bad); margin: 0; }
+.hint { margin: 0; min-height: 0; font-size: 13px; color: var(--bad); }
+.hint:empty { display: none; }
 
-/* Revelação */
-.reveal {
-  background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: 16px;
-  display: grid; gap: 10px;
-}
-.reveal .res { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
-.reveal .res.won { color: var(--good); }
-.reveal .res.lost { color: var(--bad); }
-.reveal h2 { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1.1; margin: 0; text-wrap: balance; }
-.reveal p { margin: 0; color: var(--muted); }
-.reveal p b { color: var(--ink); }
+/* conferir */
+.tune { background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 10px; font-size: 14px; }
+.tune p { margin: 0; color: var(--muted); }
+.found { display: grid; gap: 2px; }
+.tune .btn { min-height: 40px; padding: 0 12px; }
+.tune pre { margin: 0; font-size: 12px; white-space: pre-wrap; font-family: var(--font-mono); }
 
-/* Resumo final */
-.summary { background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: 18px; display: grid; gap: 14px; box-shadow: 6px 6px 0 var(--accent); }
-.score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.score .num { font-family: var(--font-display); font-size: 64px; line-height: .9; font-variant-numeric: tabular-nums; }
-.score .of { font-family: var(--font-mono); color: var(--muted); }
-.grid-share { font-size: 22px; line-height: 1.25; letter-spacing: 2px; white-space: pre; overflow-x: auto; margin: 0; }
-.songlist { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-.songlist li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; font-size: 14px; }
-.songlist .pts { font-family: var(--font-mono); font-size: 12px; padding-top: 2px; font-variant-numeric: tabular-nums; }
-.songlist a { color: var(--blue); }
-.next { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
-.next b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
-
-details.how { background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+details.how { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
 details.how summary { cursor: pointer; font-weight: 700; }
 details.how ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.vol { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+.vol input { flex: 1; max-width: 180px; accent-color: var(--accent); }
 footer { font-size: 12px; color: var(--muted); text-align: center; }
-footer button { background: none; border: 0; color: var(--blue); text-decoration: underline; padding: 0; }
+footer a, footer button { color: var(--blue); }
+footer button { background: none; border: 0; text-decoration: underline; padding: 0; }
 
-@media (prefers-reduced-motion: reduce) {
-  .cover.playing .disc { animation: none; }
-  .cover, .btn { transition: none; }
-}
-@media (max-width: 420px) {
-  .disc { width: 96px; }
-  .cover { gap: 14px; }
-}
-
-/* capa do álbum mostrada na revelação */
-.art { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; background: var(--stage); }
-.art .blur { position: absolute; inset: -20px; background-size: cover; background-position: center; filter: blur(22px) brightness(.55); }
-.art img { position: relative; height: 82%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
-.links { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
-.links a { color: var(--blue); }
-.found { font-size: 14px; display: grid; gap: 2px; }
-.found b { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .player.playing .disc { animation: none; } }
+@media (min-width: 600px) { .ptitle { font-size: 22px; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1 class="logo">Luan<span>dle</span></h1>
-      <p class="tag">Adivinhe a música do Luan Santana pela introdução. 5 por dia.</p>
-    </div>
+<div class="app">
+  <header class="top">
+    <h1 class="logo">Luan<span>dle</span></h1>
     <div class="meta">
       <span id="modeChip" class="chip" hidden>Treino</span>
-      <span>Desafio <b id="dayNum">#1</b></span>
-      <span>Pontos <b id="scoreNow">0</b>/30</span>
+      <span><b id="dayNum">#1</b></span>
+      <span><b id="scoreNow">0</b>/30</span>
+      <button class="iconbtn" id="helpBtn" aria-label="Como jogar">?</button>
     </div>
   </header>
 
-  <div class="rounds" id="rounds" aria-label="Rodadas"></div>
+  <main>
+    <div class="rounds" id="rounds" aria-label="Rodadas"></div>
 
-  <div class="stage">
-    <div class="art" id="art" hidden><div class="blur" id="artBlur"></div><img id="artImg" alt=""></div>
-    <div class="cover" id="cover">
-      <div class="disc" aria-hidden="true"></div>
-      <div class="cover-txt">
-        <span class="kicker" id="coverKicker">Música 1 de 5</span>
-        <span class="big" id="coverBig">Que <em>modão</em> é esse?</span>
-        <span class="cover-err" id="coverErr" hidden></span>
+    <section class="player" id="player" aria-live="polite">
+      <div class="prow">
+        <div class="thumb"><div class="disc" id="disc" aria-hidden="true"></div><img id="artImg" alt="" hidden></div>
+        <div class="pinfo">
+          <span class="pkick" id="pKick">Música 1 de 5</span>
+          <p class="ptitle" id="pTitle">Que <em>modão</em> é esse?</p>
+          <span class="psub" id="pSub"></span>
+        </div>
+        <button class="playbtn" id="playBtn" disabled aria-label="Tocar"><span class="ico" id="playIco">▶</span><span class="len" id="playLen">1s</span></button>
       </div>
-    </div>
-  </div>
+      <div class="timeline" id="timeline" aria-hidden="true">
+        <div class="bar" id="bar"><div id="segs"></div><div class="prog" id="prog"></div></div>
+        <div class="ticks" id="ticks"></div>
+      </div>
+    </section>
 
-  <div class="timeline" id="timeline" aria-hidden="true">
-    <div class="bar"><div class="unlocked" id="unlocked"></div><div class="prog" id="prog"></div></div>
-    <div class="ticks" id="ticks"></div>
-  </div>
-
-  <div class="controls" id="playControls">
-    <button class="btn primary play" id="playBtn" disabled>Buscando música…</button>
-    <label class="vol" for="vol">vol <input type="range" id="vol" min="0" max="100" value="70"></label>
-  </div>
-
-  <section id="playArea" class="guessbox">
     <ul class="guesses" id="guesses"></ul>
-    <div class="inrow">
+    <p class="empty" id="emptyHint">Toque ▶ para ouvir. Cada erro ou pulo libera mais tempo.</p>
+
+    <div class="links" id="revLinks" hidden></div>
+
+    <section id="summaryArea" class="summary" hidden>
+      <span class="pkick" style="color:var(--muted)">Fim do desafio</span>
+      <div class="score"><span class="num" id="finalScore">0</span><span class="of">/ 30 pontos</span></div>
+      <pre class="grid-share" id="shareGrid"></pre>
+      <div class="pair">
+        <button class="btn primary" id="copyBtn">Copiar resultado</button>
+        <button class="btn" id="practiceBtn">Treinar mais 5</button>
+      </div>
+      <p class="hint" id="copyHint" role="status"></p>
+      <ol class="songlist" id="songList"></ol>
+      <p class="next" id="nextLine">Próximo desafio em <b id="countdown">--:--:--</b></p>
+    </section>
+
+    <section id="tuneArea" class="tune" hidden>
+      <div class="found" id="tuneFound"></div>
+      <p>Veja se a faixa é a certa. Se não for, toque <b>Outro resultado</b>. Se o trecho começar ruim, ajuste o início.</p>
+      <div class="row">
+        <button class="btn" id="tunePrev" aria-label="Música anterior">‹</button>
+        <span class="next">Música <b id="tuneIdx">1</b> · início <b id="tuneStart">0.0</b>s</span>
+        <button class="btn" id="tuneNext" aria-label="Próxima música">›</button>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="tunePlay">▶ Ouvir 2s</button>
+        <button class="btn" id="tuneFree">▶ Prévia inteira</button>
+        <button class="btn" id="tuneAlt">Outro resultado</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="tuneMark">Marcar início</button>
+        <button class="btn" data-d="-1">−1s</button>
+        <button class="btn" data-d="-0.2">−0,2s</button>
+        <button class="btn" data-d="0.2">+0,2s</button>
+        <button class="btn" data-d="1">+1s</button>
+      </div>
+      <p>As escolhas já valem neste aparelho. Para valer para todo mundo, copie e me mande:</p>
+      <pre id="tuneOut"></pre>
+      <div class="row">
+        <button class="btn primary" id="tuneCopy">Copiar lista</button>
+        <button class="btn" id="tuneClear">Desfazer minhas escolhas</button>
+      </div>
+      <p class="hint" id="tuneHint" role="status"></p>
+    </section>
+
+    <details class="how" id="how">
+      <summary>Como jogar</summary>
+      <ol>
+        <li>Toque ▶ para ouvir o trecho e digite o nome da música. Escolha o nome na lista.</li>
+        <li>Cada erro ou pulo libera mais tempo: 1s, 2s, 4s, 7s, 11s e 16s.</li>
+        <li>Acertou ouvindo 1s vale 6 pontos, com 16s vale 1. São 5 músicas, até 30 pontos.</li>
+        <li>O desafio muda à meia-noite e é igual para todo mundo.</li>
+      </ol>
+      <label class="vol" for="vol">Volume <input type="range" id="vol" min="0" max="100" value="70"></label>
+    </details>
+
+    <footer>
+      Prévias de 30s da Apple Music / iTunes. Projeto de fã, sem fins lucrativos. <a href="../">Jogar a versão de anime</a>
+      <span id="backDaily" hidden> · <button id="backDailyBtn">Voltar ao desafio do dia</button></span>
+    </footer>
+  </main>
+
+  <div class="dock" id="dock">
+    <p class="hint" id="hint" role="status"></p>
+    <div class="inrow" id="playArea">
       <div class="ac">
-        <input id="guessInput" type="text" autocomplete="off" spellcheck="false" placeholder="Digite o nome da música…" aria-label="Nome da música" aria-autocomplete="list" aria-controls="acList">
+        <input id="guessInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" placeholder="Qual é a música?" aria-label="Nome da música" aria-autocomplete="list" aria-controls="acList">
         <ul id="acList" role="listbox" hidden></ul>
       </div>
       <button class="btn primary" id="guessBtn">Chutar</button>
       <button class="btn" id="skipBtn">Pular</button>
     </div>
-    <p class="hint" id="hint" role="status"></p>
-  </section>
-
-  <section id="revealArea" class="reveal" hidden>
-    <span class="res" id="revRes"></span>
-    <h2 id="revAnime"></h2>
-    <p><b id="revSong"></b> · <span id="revArtist"></span></p>
-    <div class="links" id="revLinks"></div>
-    <div class="controls">
-      <button class="btn primary" id="nextBtn">Próxima música</button>
-    </div>
-  </section>
-
-  <section id="summaryArea" class="summary" hidden>
-    <div class="score"><span class="num" id="finalScore">0</span><span class="of">/ 30 pontos</span></div>
-    <pre class="grid-share" id="shareGrid"></pre>
-    <div class="controls">
-      <button class="btn primary" id="copyBtn">Copiar resultado</button>
-      <button class="btn" id="practiceBtn">Treinar com outras 5</button>
-    </div>
-    <p class="hint" id="copyHint" role="status"></p>
-    <ol class="songlist" id="songList"></ol>
-    <p class="next" id="nextLine">Próximo desafio em <b id="countdown">--:--:--</b></p>
-  </section>
-
-  <section id="tuneArea" class="reveal" hidden>
-    <span class="res">Modo conferir</span>
-    <h2 id="tuneTitle"></h2>
-    <div class="found" id="tuneFound"></div>
-    <p>Veja se a faixa encontrada é a certa. Se não for, toque <b>Outro resultado</b>. Se o trecho começar ruim, ajuste o início.</p>
-    <div class="controls">
-      <button class="btn" id="tunePrev" aria-label="Música anterior">‹</button>
-      <span class="next">Música <b id="tuneIdx">1</b> · início em <b id="tuneStart">0.0</b>s</span>
-      <button class="btn" id="tuneNext" aria-label="Próxima música">›</button>
-    </div>
-    <div class="controls">
-      <button class="btn primary" id="tunePlay">▶ Ouvir 2s</button>
-      <button class="btn" id="tuneFree">▶ Prévia inteira</button>
-      <button class="btn" id="tuneAlt">Outro resultado</button>
-    </div>
-    <div class="controls">
-      <button class="btn" id="tuneMark">Marcar início</button>
-      <button class="btn" data-d="-1">−1s</button>
-      <button class="btn" data-d="-0.2">−0,2s</button>
-      <button class="btn" data-d="0.2">+0,2s</button>
-      <button class="btn" data-d="1">+1s</button>
-    </div>
-    <p>As escolhas já valem neste aparelho. Para valer para todo mundo, copie e me mande:</p>
-    <pre class="grid-share" id="tuneOut" style="font-size:12px;letter-spacing:0;white-space:pre-wrap"></pre>
-    <div class="controls">
-      <button class="btn primary" id="tuneCopy">Copiar lista</button>
-      <button class="btn" id="tuneClear">Desfazer minhas escolhas</button>
-    </div>
-    <p class="hint" id="tuneHint" role="status"></p>
-  </section>
-
-  <details class="how">
-    <summary>Como jogar</summary>
-    <ol>
-      <li>Toque o trecho e digite o nome da música. Escolha o nome na lista que aparece.</li>
-      <li>Cada erro ou pulo libera mais tempo: 1s, 2s, 4s, 7s, 11s e 16s.</li>
-      <li>Acertou ouvindo 1s vale 6 pontos, com 16s vale 1. São 5 músicas, até 30 pontos.</li>
-      <li>O desafio muda à meia-noite e é igual para todo mundo.</li>
-    </ol>
-  </details>
-
-  <footer>
-    Prévias de 30s da Apple Music / iTunes. Projeto de fã, sem fins lucrativos. <a href="../" style="color:var(--blue)">Jogar a versão de anime</a>
-    <span id="backDaily" hidden> · <button id="backDailyBtn">Voltar ao desafio do dia</button></span>
-  </footer>
+    <button class="btn primary block" id="nextBtn" hidden>Próxima música</button>
+  </div>
 </div>
 
 <script src="songs.js"></script>
@@ -660,7 +613,7 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     finishIfNeeded(r);
     $("guessInput").value = "";
     closeAc();
-    setHint(right || r.done ? "" : `Errou. Agora você ouve ${unlocked(r)}s.`);
+    setHint("");
     save(); render();
   }
 
@@ -669,7 +622,7 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     if (r.done) return;
     r.guesses.push({ type: "skip", text: "Pulou" });
     finishIfNeeded(r);
-    setHint(r.done ? "" : `Agora você ouve ${unlocked(r)}s.`);
+    setHint("");
     save(); render();
   }
 
@@ -686,7 +639,8 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     save();
     if (!state.finished) loadCurrent();
     render();
-    if (!state.finished) $("guessInput").focus();
+    if (!state.finished && matchMedia("(pointer: fine)").matches) $("guessInput").focus();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function setHint(t) { $("hint").textContent = t; }
@@ -736,27 +690,33 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
   }
 
   // ---------- Render ----------
+  const SEGS = CLIPS.map((c, i) => [i ? CLIPS[i - 1] : 0, c]);
   function renderTicks() {
+    $("segs").innerHTML = SEGS.map(([a, b], i) =>
+      `<div class="seg" id="seg${i}" style="left:${a / MAX_SEC * 100}%;width:calc(${(b - a) / MAX_SEC * 100}% - 3px)"></div>`).join("");
     $("ticks").innerHTML = CLIPS.map((c) => `<span style="left:${c / MAX_SEC * 100}%">${c}s</span>`).join("");
-    const bar = document.querySelector(".bar");
-    bar.querySelectorAll(".tick").forEach((t) => t.remove());
-    CLIPS.slice(0, -1).forEach((c) => { const d = document.createElement("div"); d.className = "tick"; d.style.left = `calc(${c / MAX_SEC * 100}% - 1px)`; bar.appendChild(d); });
   }
 
   function showArt(i) {
-    const a = $("art");
-    if (!i || !i.artwork) { a.hidden = true; return; }
-    if ($("artImg").getAttribute("src") !== i.artwork) {
-      $("artImg").src = i.artwork;
-      $("artBlur").style.backgroundImage = `url("${i.artwork}")`;
-    }
-    a.hidden = false;
+    const img = $("artImg");
+    if (!i || !i.artwork) { img.hidden = true; $("disc").hidden = false; return; }
+    if (img.getAttribute("src") !== i.artwork) img.src = i.artwork;
+    img.hidden = false; $("disc").hidden = true;
+  }
+
+  function setPlayer(kick, kickCls, titleHTML, sub, subErr) {
+    const k = $("pKick");
+    k.textContent = kick; k.className = "pkick" + (kickCls ? " " + kickCls : "");
+    $("pTitle").innerHTML = titleHTML;
+    const s = $("pSub");
+    s.textContent = sub || ""; s.hidden = !sub; s.className = "psub" + (subErr ? " err" : "");
   }
 
   function render() {
     if (tuneMode) { renderTune(); return; }
     if (!state) return;
     const r = round(), s = song();
+    const ri = Math.min(state.current, ROUNDS - 1);
 
     $("dayNum").textContent = mode === "daily" ? "#" + dayNumber(seed) : "treino";
     $("modeChip").hidden = mode === "daily";
@@ -769,52 +729,63 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
       return `<div class="rpill ${cls}" aria-label="Rodada ${i + 1}">${label}</div>`;
     }).join("");
 
-    // capa
-    const cover = $("cover");
-    const revealed = r.done && !r.broken && !state.finished;
-    cover.classList.toggle("gone", revealed);
-    cover.classList.toggle("playing", playing && !r.done);
-    if (revealed) showArt(info); else $("art").hidden = true;
-    $("coverKicker").textContent = `Música ${Math.min(state.current, ROUNDS - 1) + 1} de ${ROUNDS}`;
-    const errBox = $("coverErr");
-    errBox.hidden = !loadErr;
-    errBox.textContent = loadErr || "";
+    const revealed = r.done && !state.finished;
+    $("player").classList.toggle("playing", playing);
+    $("player").hidden = state.finished;
 
-    // linha do tempo
-    $("unlocked").style.width = (r.done ? 100 : unlocked(r) / MAX_SEC * 100) + "%";
+    // player
+    if (state.finished) {
+      showArt(null);
+      setPlayer("Fim do desafio", "", `${totalPoints()} <em>/ 30</em>`, mode === "daily" ? "Volte amanhã para mais 5 músicas." : "Treino concluído.");
+    } else if (revealed) {
+      if (!r.broken) showArt(info); else showArt(null);
+      const kick = r.broken ? "Música indisponível" : r.won ? `Acertou com ${CLIPS[r.guesses.length - 1]}s · +${roundPoints(r)}` : "Não foi dessa vez";
+      setPlayer(kick, r.won ? "won" : "lost", esc(s.anime), `${s.song} · ${s.artist}`);
+    } else {
+      showArt(null);
+      const sub = loadErr || (!info ? "Buscando música…" : r.guesses.length ? `Agora você ouve ${unlocked(r)}s` : "");
+      setPlayer(`Música ${ri + 1} de ${ROUNDS}`, "", "Que <em>modão</em> é esse?", sub, !!loadErr);
+    }
 
     // botão tocar
     const pb = $("playBtn");
-    pb.disabled = !info || state.finished;
-    pb.textContent = state.finished ? "Fim do desafio" : loadErr ? "Música indisponível" : !info ? "Buscando música…" : playing ? "■ Parar" : r.done ? "▶ Ouvir a música" : `▶ Tocar ${unlocked(r)}s`;
+    pb.hidden = state.finished;
+    pb.disabled = !info;
+    $("playIco").textContent = playing ? "■" : "▶";
+    $("playLen").textContent = r.done ? "tudo" : `${unlocked(r)}s`;
+    pb.setAttribute("aria-label", playing ? "Parar" : r.done ? "Ouvir a música" : `Tocar ${unlocked(r)} segundos`);
 
-    // tentativas
-    $("guesses").innerHTML = CLIPS.map((c, i) => {
-      const g = r.guesses[i];
-      return `<li class="${g ? g.type : ""}"><span class="n">${c}s</span><span class="t">${g ? esc(g.text) : ""}</span></li>`;
-    }).join("");
+    // barra de tempo = tentativas
+    $("timeline").hidden = state.finished;
+    SEGS.forEach((_, i) => {
+      const g = r.guesses[i], el = $("seg" + i);
+      el.className = "seg" + (g ? " " + g.type : (r.done || i <= r.guesses.length) ? " open" : "");
+    });
 
-    $("playArea").hidden = r.done || state.finished;
-    if (!r.done && loadErr) {
-      $("skipBtn").textContent = "Pular música com erro";
+    // etiquetas de palpites (erros e pulos)
+    const chips = r.guesses.map((g, i) => ({ g, i })).filter((x) => x.g.type === "wrong");
+    $("guesses").innerHTML = state.finished ? "" : chips.map(({ g, i }) =>
+      `<li class="${g.type}"><b>${CLIPS[i]}s</b><span>${esc(g.text)}</span></li>`).join("");
+    $("guesses").hidden = state.finished || !chips.length;
+    $("emptyHint").hidden = state.finished || r.done || r.guesses.length > 0;
+
+    // links depois da revelação
+    $("revLinks").hidden = !revealed;
+    if (revealed) $("revLinks").innerHTML = linksFor(s, info);
+
+    // barra do rodapé
+    const playingRound = !r.done && !state.finished;
+    if (!playingRound) $("hint").textContent = "";
+    $("dock").hidden = state.finished;
+    $("playArea").hidden = !playingRound;
+    $("nextBtn").hidden = !revealed;
+    if (revealed) $("nextBtn").textContent = state.current < ROUNDS - 1 ? "Próxima música →" : "Ver resultado →";
+    if (playingRound && loadErr) {
+      $("skipBtn").textContent = "Pular";
       $("skipBtn").dataset.broken = "1";
     } else {
-      $("skipBtn").textContent = r.guesses.length < CLIPS.length - 1 ? `Pular (+${CLIPS[r.guesses.length + 1] - CLIPS[r.guesses.length]}s)` : "Desistir";
+      $("skipBtn").textContent = r.guesses.length < CLIPS.length - 1 ? "Pular" : "Desistir";
       delete $("skipBtn").dataset.broken;
-    }
-
-    // revelação
-    const showReveal = r.done && !state.finished;
-    $("revealArea").hidden = !showReveal;
-    if (showReveal) {
-      const res = $("revRes");
-      res.className = "res " + (r.won ? "won" : "lost");
-      res.textContent = r.broken ? "Música indisponível" : r.won ? `Acertou com ${CLIPS[r.guesses.length - 1]}s · +${roundPoints(r)} pontos` : "Não foi dessa vez";
-      $("revAnime").textContent = s.anime;
-      $("revSong").textContent = s.song;
-      $("revArtist").textContent = s.artist;
-      $("revLinks").innerHTML = linksFor(s, info);
-      $("nextBtn").textContent = state.current < ROUNDS - 1 ? "Próxima música" : "Ver resultado";
     }
 
     // resumo
@@ -824,18 +795,17 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
       $("shareGrid").textContent = shareText().split("\n").slice(1).filter((l) => !l.startsWith("http")).join("\n");
       $("songList").innerHTML = picks.map((p, i) => {
         const x = state.rounds[i];
-        const links = linksFor(p, cache[songKey(p)]);
+        const links = linksFor(p, cache[songKey(p)], true);
         return `<li><span class="pts">${x.won ? "+" + roundPoints(x) : "0"}</span><span><b>${esc(p.anime)}</b> · ${esc(p.song)} (${esc(p.artist)})${links ? " · " + links : ""}</span></li>`;
       }).join("");
       $("nextLine").hidden = mode !== "daily";
-      $("practiceBtn").textContent = mode === "daily" ? "Treinar com outras 5" : "Mais 5 de treino";
-      $("coverKicker").textContent = "Fim do desafio";
+      $("practiceBtn").textContent = mode === "daily" ? "Treinar mais 5" : "Mais 5 de treino";
     }
   }
 
-  function linksFor(s, i) {
+  function linksFor(s, i, short) {
     const out = [];
-    if (i && i.url) out.push(`<a href="${esc(i.url)}" target="_blank" rel="noopener">Apple Music</a>`);
+    if (i && i.url) out.push(`<a href="${esc(i.url)}" target="_blank" rel="noopener">${short ? "Apple Music" : "Ouvir no Apple Music"}</a>`);
     if (s.youtubeId) out.push(`<a href="https://www.youtube.com/watch?v=${encodeURIComponent(s.youtubeId)}" target="_blank" rel="noopener">YouTube</a>`);
     return out.join(" · ");
   }
@@ -899,12 +869,11 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
     }).join("\n");
   }
   function renderTune() {
-    ["rounds", "timeline", "playArea", "revealArea", "summaryArea", "playControls"].forEach((id) => { $(id).hidden = true; });
+    ["rounds", "timeline", "guesses", "emptyHint", "revLinks", "summaryArea", "dock", "playBtn"].forEach((id) => { $(id).hidden = true; });
     $("tuneArea").hidden = false;
-    $("cover").classList.toggle("gone", !!info);
     showArt(info);
     const s = tuneSong();
-    $("tuneTitle").textContent = `${s.anime} · ${s.song}`;
+    setPlayer("Modo conferir", "", esc(s.anime), s.song);
     $("tuneIdx").textContent = `${tuneIdx + 1}/${SONGS.length}`;
     $("tuneStart").textContent = startOf(s).toFixed(1);
     $("tuneFound").innerHTML = tuneBusy ? "Buscando no iTunes…" : info
@@ -956,6 +925,7 @@ footer button { background: none; border: 0; color: var(--blue); text-decoration
   $("guessBtn").addEventListener("click", () => guess(acItems[acIndex] ? acItems[acIndex].e.name : input.value));
   $("skipBtn").addEventListener("click", () => $("skipBtn").dataset.broken ? giveUpBroken() : skip());
   $("playBtn").addEventListener("click", playClip);
+  $("helpBtn").addEventListener("click", () => { const d = $("how"); d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); });
   $("nextBtn").addEventListener("click", next);
   $("copyBtn").addEventListener("click", copyShare);
   $("practiceBtn").addEventListener("click", () => startGame("practice"));
