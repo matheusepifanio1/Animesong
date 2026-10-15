@@ -1,0 +1,500 @@
+1	Attack on Titan	8 OPs	1066347
+2	Demon Slayer: Kimetsu no Yaiba	5 OPs	1004438
+3	JUJUTSU KAISEN	5 OPs	984270
+4	Death Note	2 OPs	972158
+5	My Hero Academia	15 OPs	882246
+6	Hunter x Hunter	3 OPs	849270
+7	One-Punch Man	3 OPs	773894
+8	ONE PIECE	34 OPs	759916
+9	Tokyo Ghoul	4 OPs	747282
+10	Fullmetal Alchemist	9 OPs	736696
+11	Naruto	41 OPs	733449
+12	Sword Art Online	10 OPs	725998
+13	Chainsaw Man	1 OPs	642604
+14	The Promised Neverland	2 OPs	638308
+15	Assassination Classroom	4 OPs	634031
+16	Mob Psycho 100	3 OPs	632814
+17	Re:ZERO -Starting Life in Another World-	6 OPs	630718
+18	Your lie in April	2 OPs	619451
+19	ERASED	1 OPs	611040
+20	Steins;Gate	2 OPs	601121
+21	Black Clover	14 OPs	594292
+22	HAIKYU!!	7 OPs	588620
+23	Rascal Does Not Dream of Bunny Girl Senpai	2 OPs	585896
+24	SPY x FAMILY	4 OPs	577207
+25	Kaguya-sama: Love is War	4 OPs	564796
+26	Dr. STONE	8 OPs	560295
+27	Vinland Saga	4 OPs	552994
+28	Violet Evergarden	1 OPs	552819
+29	Horimiya	2 OPs	548681
+30	Toradora!	2 OPs	547242
+31	No Game, No Life	2 OPs	545375
+32	Akame ga Kill!	2 OPs	544535
+33	Noragami	2 OPs	543279
+34	The Seven Deadly Sins	9 OPs	533987
+35	Bleach	19 OPs	529088
+36	KONOSUBA -God's blessing on this wonderful world!	4 OPs	523731
+37	Code Geass: Lelouch of the Rebellion	5 OPs	507006
+38	DARLING in the FRANXX	2 OPs	505239
+39	Parasyte -the maxim-	1 OPs	505110
+40	Neon Genesis Evangelion	1 OPs	500486
+41	Frieren: Beyond Journey’s End	3 OPs	490073
+42	Fire Force	6 OPs	488845
+43	JoJo's Bizarre Adventure (TV)	12 OPs	483883
+44	Cowboy Bebop	1 OPs	472159
+45	Death Parade	1 OPs	470944
+46	That Time I Got Reincarnated as a Slime	8 OPs	469446
+47	Mushoku Tensei: Jobless Reincarnation	12 OPs	465748
+48	The Rising of the Shield Hero	5 OPs	465560
+49	Blue Exorcist	4 OPs	464785
+50	Kakegurui	2 OPs	459620
+51	Solo Leveling	3 OPs	454861
+52	Classroom of the Elite	4 OPs	452747
+53	Tokyo Revengers	3 OPs	450473
+54	Angel Beats!	2 OPs	446670
+55	Charlotte	1 OPs	438188
+56	My Dress-Up Darling	2 OPs	436554
+57	The Future Diary	2 OPs	434704
+58	Bungo Stray Dogs	5 OPs	424618
+59	Made in Abyss	4 OPs	409345
+60	Overlord	4 OPs	409246
+61	Food Wars!	7 OPs	406192
+62	Is It Wrong to Try to Pick Up Girls in a Dungeon?	7 OPs	400563
+63	The Devil is a Part-Timer!	3 OPs	399168
+64	Soul Eater	4 OPs	397559
+65	Anohana: The Flower We Saw That Day	2 OPs	397203
+66	Cyberpunk: Edgerunners	1 OPs	396089
+67	DAN DA DAN	2 OPs	392509
+68	Another	1 OPs	388565
+69	My Teen Romantic Comedy SNAFU	3 OPs	386107
+70	Gurren Lagann	1 OPs	384319
+71	Fairy Tail	28 OPs	383525
+72	Dororo	2 OPs	378375
+73	Hell’s Paradise	2 OPs	367719
+74	The Disastrous Life of Saiki K.	4 OPs	362853
+75	PSYCHO-PASS	3 OPs	359321
+76	Love, Chunibyo & Other Delusions	2 OPs	356919
+77	Devilman Crybaby	1 OPs	355963
+78	Hyouka	2 OPs	355129
+79	Fate/stay night	12 OPs	350844
+80	Monster	1 OPs	346735
+81	Bakemonogatari	27 OPs	345298
+82	Tower of God	4 OPs	338636
+83	The Apothecary Diaries	5 OPs	335441
+84	OSHI NO KO	4 OPs	333890
+85	Miss Kobayashi's Dragon Maid	2 OPs	332374
+86	Seraph of the End: Vampire Reign	2 OPs	331913
+87	Wotakoi: Love is Hard for Otaku	1 OPs	331415
+88	Puella Magi Madoka Magica	2 OPs	330257
+89	BLUE LOCK	3 OPs	330244
+90	86 EIGHTY-SIX	2 OPs	329141
+91	The Quintessential Quintuplets	2 OPs	327300
+92	Komi Can’t Communicate	2 OPs	324572
+93	To Your Eternity	3 OPs	320474
+94	The Eminence in Shadow	2 OPs	319989
+95	High School DxD	2 OPs	317707
+96	Fruits Basket	6 OPs	314235
+97	BANANA FISH	2 OPs	311711
+98	Rent-a-Girlfriend	3 OPs	311163
+99	GOBLIN SLAYER	2 OPs	306089
+100	Clannad	2 OPs	303460
+101	The God of High School	1 OPs	301642
+102	Gintama	26 OPs	299090
+103	Durarara!!	5 OPs	296198
+104	Terror in Resonance	1 OPs	294009
+105	MASHLE: MAGIC AND MUSCLES	2 OPs	293787
+106	Maid-Sama!	1 OPs	290814
+107	Kuroko's Basketball	7 OPs	289244
+108	Kaiju No. 8	2 OPs	287766
+109	WONDER EGG PRIORITY	1 OPs	286955
+110	Call of the Night	2 OPs	286853
+111	Samurai Champloo	1 OPs	283047
+112	Saga of Tanya the Evil	2 OPs	282841
+113	K-ON!	4 OPs	282021
+114	Beyond the Boundary	1 OPs	281747
+115	The Pet Girl of Sakurasou	3 OPs	279610
+116	Nisekoi	4 OPs	270486
+117	DON'T TOY WITH ME, MISS NAGATORO	2 OPs	270251
+118	The Misfit of Demon King Academy: History’s Strongest Demon King Reincarnates and Goes to School with His Descendants	4 OPs	270089
+119	BOCCHI THE ROCK!	1 OPs	269933
+120	Golden Time	2 OPs	268915
+121	My Little Monster	1 OPs	264212
+122	Black Butler	3 OPs	263067
+123	Gachiakuta	2 OPs	262875
+124	ReLIFE	1 OPs	262490
+125	Dragon Ball	9 OPs	261996
+126	The Irregular at Magic High School	4 OPs	261990
+127	Plastic Memories	1 OPs	261573
+128	Ouran High School Host Club	2 OPs	260424
+129	BEASTARS	2 OPs	260225
+130	Serial Experiments Lain	1 OPs	256335
+131	Black Lagoon	2 OPs	254756
+132	Kimi ni Todoke: From Me to You	2 OPs	253989
+133	Date A Live	3 OPs	249558
+134	TONIKAWA: Over The Moon For You	2 OPs	249223
+135	Chivalry of a Failed Knight	1 OPs	248377
+136	The Ancient Magus' Bride	3 OPs	248028
+137	Blue Spring Ride	1 OPs	246975
+138	Masamune-kun's Revenge	2 OPs	246505
+139	Zom 100: Bucket List of the Dead	1 OPs	244642
+140	Guilty Crown	3 OPs	243101
+141	Nichijou - My Ordinary Life	2 OPs	242868
+142	Toilet-bound Hanako-kun	1 OPs	240499
+143	Log Horizon	3 OPs	239809
+144	Grand Blue Dreaming	2 OPs	238486
+145	Orange	1 OPs	238020
+146	SK8 the Infinity	1 OPs	236842
+147	Danganronpa: The Animation	3 OPs	234960
+148	Magi: The Labyrinth of Magic	5 OPs	234367
+149	Yuri!!! on ICE	1 OPs	233253
+150	Witch Hat Atelier	1 OPs	232879
+151	Arifureta: From Commonplace to World's Strongest	4 OPs	232875
+152	Great Pretender	1 OPs	232863
+153	Blood Blockade Battlefront	2 OPs	232128
+154	Delicious in Dungeon	2 OPs	229705
+155	Summer Time Rendering	2 OPs	229084
+156	Ranking of Kings	3 OPs	226472
+157	Domestic Girlfriend	1 OPs	225134
+158	SAKAMOTO DAYS	2 OPs	224935
+159	Monthly Girls' Nozaki-kun	1 OPs	224397
+160	Angels of Death	1 OPs	219975
+161	Yona of the Dawn	2 OPs	219598
+162	Shikimori's Not Just a Cutie	1 OPs	219259
+163	March comes in like a lion	4 OPs	215757
+164	The Fragrant Flower Blooms With Dignity	1 OPs	215713
+165	Tengoku Daimakyo	1 OPs	215689
+166	Lycoris Recoil	1 OPs	213529
+167	given	1 OPs	212789
+168	The Case Study of Vanitas	2 OPs	212657
+169	NANA	3 OPs	210320
+170	Alya Sometimes Hides Her Feelings in Russian	1 OPs	209891
+171	My Love Story with Yamada-kun at Lv999	1 OPs	209620
+172	How NOT to Summon a Demon Lord	1 OPs	208255
+173	The World's Finest Assassin Gets Reincarnated in Another World as an Aristocrat	1 OPs	206696
+174	Welcome to the N-H-K	2 OPs	205698
+175	Kiznaiver	1 OPs	204265
+176	Cells at Work!	3 OPs	203403
+177	The Melancholy of Haruhi Suzumiya	3 OPs	202636
+178	Akashic Records of Bastard Magic Instructor	1 OPs	202625
+179	Cautious Hero: The Hero Is Overpowered but Overly Cautious	1 OPs	202343
+180	91 Days	1 OPs	200505
+181	Gate	2 OPs	199661
+182	TRINITY SEVEN	1 OPs	199577
+183	Kabaneri of the Iron Fortress	1 OPs	199029
+184	Tsuredure Children	1 OPs	198282
+185	Black Bullet	1 OPs	197614
+186	MUSHI-SHI	2 OPs	196099
+187	Daily Lives of High School Boys	1 OPs	195263
+188	WIND BREAKER	2 OPs	194252
+189	Shangri-La Frontier	4 OPs	193089
+190	Dorohedoro	1 OPs	192698
+191	Kokoro Connect	3 OPs	192618
+192	Haven't You Heard? I'm Sakamoto	1 OPs	192606
+193	A Certain Magical Index	13 OPs	192567
+194	Baccano!	1 OPs	191462
+195	Yamada and the Seven Witches	1 OPs	191049
+196	Higehiro: After Being Rejected, I Shaved and Took in a High School Runaway	1 OPs	189494
+197	Eromanga Sensei	1 OPs	187960
+198	Hellsing	1 OPs	187941
+199	Berserk	1 OPs	187553
+200	Wise Man’s Grandchild	1 OPs	186784
+201	Grimgar of Fantasy and Ash	1 OPs	185235
+202	Free! -Iwatobi Swim Club-	2 OPs	184385
+203	BOFURI: I Don't Want to Get Hurt, so I'll Max Out My Defense.	3 OPs	184355
+204	Scum's Wish	1 OPs	183671
+205	Spice and Wolf	5 OPs	183449
+206	Snow White with the Red Hair	2 OPs	183388
+207	Vivy -Fluorite Eye's Song-	4 OPs	182482
+208	BLEND-S	1 OPs	182316
+209	Saekano: How to Raise a Boring Girlfriend	3 OPs	180223
+210	Wistoria: Wand and Sword	2 OPs	180184
+211	From the New World	1 OPs	179729
+212	Tomo-chan Is a Girl!	1 OPs	179506
+213	When They Cry	3 OPs	179127
+214	Ghost in the Shell	3 OPs	178700
+215	Darker than Black	2 OPs	178637
+216	Link Click	3 OPs	178172
+217	The Angel Next Door Spoils Me Rotten	2 OPs	177130
+218	GAMERS!	1 OPs	176470
+219	TSUKIMICHI -Moonlit Fantasy-	3 OPs	176175
+220	INUYASHIKI LAST HERO	1 OPs	175712
+221	Darwin's Game	1 OPs	175327
+222	K	2 OPs	174852
+223	InuYasha	7 OPs	174732
+224	Himouto! Umaru-chan	2 OPs	174279
+225	Kamisama Kiss	2 OPs	172264
+226	Trigun	2 OPs	171920
+227	Teasing Master Takagi-san	4 OPs	171695
+228	Welcome to Demon School! Iruma-kun	3 OPs	171012
+229	takt op.Destiny	1 OPs	170506
+230	More than a Married Couple, but Not Lovers.	1 OPs	169526
+231	Tomodachi Game	1 OPs	168984
+232	A Place Further Than the Universe	1 OPs	168558
+233	Little Witch Academia	2 OPs	168283
+234	Laid-Back Camp	2 OPs	167542
+235	Haganai	2 OPs	167465
+236	Amagi Brilliant Park	1 OPs	166449
+237	BTOOOM!	2 OPs	165801
+238	Akudama Drive	1 OPs	165731
+239	Sentenced to Be a Hero	1 OPs	165334
+240	The Millionaire Detective - Balance: UNLIMITED	1 OPs	164646
+241	Mieruko-chan	1 OPs	164052
+242	The Dangers in My Heart	2 OPs	163987
+243	In/Spectre	2 OPs	163734
+244	Land of the Lustrous	1 OPs	161963
+245	The Way of the Househusband	1 OPs	160997
+246	Tsukigakirei	1 OPs	160297
+247	Yu Yu Hakusho: Ghostfiles	2 OPs	160116
+248	Ergo Proxy	1 OPs	159160
+249	My Love Story!!	1 OPs	158543
+250	Moriarty the Patriot	2 OPs	158466
+251	In Another World With My Smartphone	2 OPs	158157
+252	The Asterisk War	2 OPs	158067
+253	The Familiar of Zero	4 OPs	157856
+254	Blue Period	1 OPs	156140
+255	Say "I love you".	1 OPs	156018
+256	ZOMBIE LAND SAGA	5 OPs	155755
+257	WataMote: No Matter How I Look At It, It's You Guys' Fault I'm Not Popular!	1 OPs	155578
+258	So I'm a Spider, So What?	2 OPs	155488
+259	Wandering Witch: The Journey of Elaina	1 OPs	154642
+260	Barakamon	2 OPs	154334
+261	Blue Box	2 OPs	153651
+262	Sound! Euphonium	2 OPs	153157
+263	I Got a Cheat Skill in Another World and Became Unrivaled in The Real World, Too	1 OPs	152848
+264	ODDTAXI	1 OPs	152291
+265	Uzaki-chan Wants to Hang Out!	2 OPs	152260
+266	HINAMATSURI	1 OPs	150279
+267	The Tatami Galaxy	2 OPs	149910
+268	Asobi Asobase - workshop of fun -	1 OPs	149719
+269	My First Girlfriend is a Gal	1 OPs	149546
+270	Pokémon	12 OPs	149490
+271	My Next Life as a Villainess: All Routes Lead to Doom!	2 OPs	149129
+272	Oreimo	3 OPs	147665
+273	The Fruit of Grisaia	1 OPs	146779
+274	And you thought there is never a girl online?	1 OPs	146725
+275	Hajime no Ippo: The Fighting!	3 OPs	146716
+276	Lucky☆Star	1 OPs	146699
+277	Takopi's Original Sin	1 OPs	146142
+278	The Summer Hikaru Died	1 OPs	145688
+279	Citrus	1 OPs	145293
+280	My Happy Marriage	2 OPs	145197
+281	Bottom-Tier Character Tomozaki	2 OPs	143876
+282	The Daily Life of the Immortal King	2 OPs	143800
+283	Plunderer	2 OPs	142970
+284	To Love Ru	3 OPs	142606
+285	A Sign of Affection	1 OPs	142585
+286	Daemons of the Shadow Realm	2 OPs	142332
+287	Seirei Gensouki: Spirit Chronicles	2 OPs	142034
+288	How a Realist Hero Rebuilt the Kingdom	2 OPs	141666
+289	Blood Lad	1 OPs	141268
+290	ORESUKI: Are you the only one who loves me?	1 OPs	141132
+291	I've Been Killing Slimes for 300 Years and Maxed Out My Level	1 OPs	141037
+292	BAKI	4 OPs	140958
+293	Golden Kamuy	3 OPs	140816
+294	Megalobox	2 OPs	140051
+295	Myriad Colors Phantom World	1 OPs	139366
+296	Bloom Into You	1 OPs	139127
+297	Girls' Last Tour	1 OPs	139106
+298	Lovely Complex	2 OPs	138902
+299	A Lull in the Sea	2 OPs	138858
+300	Death March to the Parallel World Rhapsody	1 OPs	138060
+301	High-Rise Invasion	1 OPs	137756
+302	GANGSTA.	1 OPs	137671
+303	Recovery of an MMO Junkie	1 OPs	137048
+304	Re:CREATORS	2 OPs	136882
+305	The 100 Girlfriends Who Really, Really, Really, Really, REALLY Love You	2 OPs	136469
+306	The World God Only Knows	2 OPs	136205
+307	Sankarea: Undying Love	1 OPs	136155
+308	Katanagatari	3 OPs	135189
+309	Uncle from Another World	1 OPs	135182
+310	DRIFTERS	1 OPs	135158
+311	Rokka -Braves of the Six Flowers-	2 OPs	135023
+312	Skip and Loafer	1 OPs	134969
+313	Infinite Stratos	2 OPs	134457
+314	Makeine: Too Many Losing Heroines!	1 OPs	134158
+315	Girlfriend, Girlfriend	1 OPs	133580
+316	Undead Unluck	2 OPs	133528
+317	Accel World	1 OPs	133326
+318	Record of Ragnarok	2 OPs	133250
+319	Paranoia Agent	1 OPs	132865
+320	Trapped in a Dating Sim: The World of Otome Games Is Tough for Mobs	2 OPs	132825
+321	Smoking Behind the Supermarket with You	2 OPs	132531
+322	We Never Learn: BOKUBEN	2 OPs	132337
+323	Shiki	2 OPs	132127
+324	The Detective Is Already Dead	1 OPs	132008
+325	The Wrong Way to Use Healing Magic	1 OPs	131090
+326	Gabriel DropOut	1 OPs	130957
+327	BNA	1 OPs	130674
+328	Platinum End	1 OPs	130425
+329	The Hidden Dungeon Only I Can Enter	1 OPs	129894
+330	You and I Are Polar Opposites	2 OPs	129863
+331	Tamako Market	1 OPs	129765
+332	Buddy Daddies	1 OPs	129462
+333	Aharen-san wa Hakarenai	1 OPs	129336
+334	To Be Hero X	2 OPs	129300
+335	Natsume's Book of Friends	2 OPs	128983
+336	Strike the Blood	2 OPs	128764
+337	AHO-GIRL	1 OPs	128328
+338	ID: INVADED	1 OPs	127934
+339	Banished from the Hero’s Party, I Decided to Live a Quiet Life in the Countryside	2 OPs	127841
+340	Kemono Jihen	1 OPs	127683
+341	Tanaka-kun is Always Listless	1 OPs	127197
+342	Rosario + Vampire	1 OPs	126842
+343	Gosick	1 OPs	126671
+344	Ping Pong the Animation	1 OPs	126075
+345	Twin Star Exorcists	4 OPs	125904
+346	SCHOOL-LIVE!	1 OPs	125784
+347	Orb: On the Movements of the Earth	1 OPs	125752
+348	How Heavy Are the Dumbbells You Lift?	1 OPs	125656
+349	Combatants Will Be Dispatched!	1 OPs	125467
+350	Chihayafuru	2 OPs	124226
+351	Science Fell in Love, So I Tried to Prove It	2 OPs	123622
+352	Skeleton Knight in Another World	2 OPs	123571
+353	Talentless Nana	1 OPs	123480
+354	Problem Children Are Coming From Another World, Aren't They?	1 OPs	123354
+355	AJIN: Demi-Human	3 OPs	123121
+356	Bakuman.	4 OPs	122795
+357	Absolute Duo	1 OPs	122429
+358	Claymore	1 OPs	122311
+359	NieR:Automata Ver1.1a	1 OPs	122224
+360	Campfire Cooking in Another World with my Absurd Skill	2 OPs	122046
+361	World Trigger	3 OPs	121645
+362	NEW GAME!	3 OPs	121632
+363	Non Non Biyori	2 OPs	121167
+364	WorldEnd: What are you doing at the end of the world? Are you busy? Will you save us?	2 OPs	120639
+365	Ascendance of a Bookworm	3 OPs	120519
+366	Baka and Test - Summon the Beasts	2 OPs	119727
+367	Dagashi Kashi	1 OPs	119587
+368	Reincarnated as a Sword	1 OPs	119367
+369	D.Gray-man	4 OPs	118258
+370	Initial D 1st Stage	3 OPs	117900
+371	Boarding School Juliet	1 OPs	117546
+372	Keep Your Hands Off Eizouken!	1 OPs	116795
+373	Chained Soldier	2 OPs	116742
+374	Ragna Crimson	2 OPs	116705
+375	LOVE and LIES	1 OPs	116026
+376	Is this a Zombie?	2 OPs	116017
+377	God Eater	1 OPs	115796
+378	My Senpai is Annoying	1 OPs	115556
+379	Blast of Tempest	2 OPs	115344
+380	A Couple of Cuckoos	2 OPs	115172
+381	The Greatest Demon Lord Is Reborn as a Typical Nobody	1 OPs	115154
+382	LAZARUS	1 OPs	115086
+383	Farming Life in Another World	2 OPs	114416
+384	Love Live! School Idol Project	3 OPs	114107
+385	Panty & Stocking with Garterbelt	1 OPs	113780
+386	Our Last Crusade or the Rise of a New World	1 OPs	113455
+387	Remake Our Life!	1 OPs	113423
+388	Vermeil in Gold	1 OPs	113055
+389	SHIROBAKO	3 OPs	112891
+390	Azumanga Daioh	1 OPs	112752
+391	Eden of the East	1 OPs	112701
+392	ASSASSINS PRIDE	1 OPs	112197
+393	O Maidens in Your Savage Season	1 OPs	111945
+394	The Genius Prince's Guide to Raising a Nation Out of Debt	1 OPs	111871
+395	Maoyu: Archenemy & Hero	1 OPs	111764
+396	Insomniacs After School	1 OPs	111503
+397	I'm Quitting Heroing	1 OPs	111124
+398	Seitokai Yakuindomo	2 OPs	110750
+399	Keijo!!!!!!!!	1 OPs	110109
+400	The Helpful Fox Senko-san	1 OPs	109950
+401	Romantic Killer	1 OPs	109776
+402	My Stepmom's Daughter is My Ex	1 OPs	109492
+403	The Faraway Paladin	1 OPs	109427
+404	Isekai Quartet	2 OPs	109149
+405	My Deer Friend Nokotan	1 OPs	108971
+406	Beelzebub	5 OPs	107585
+407	Kakushigoto	1 OPs	107372
+408	When Supernatural Battles Became Commonplace	1 OPs	107181
+409	I Was Reincarnated as the 7th Prince so I Can Take My Time Perfecting My Magical Ability	2 OPs	106279
+410	Sailor Moon	2 OPs	106176
+411	Kiss Him, Not Me	1 OPs	106128
+412	SSSS.GRIDMAN	2 OPs	105646
+413	Kono Oto Tomare!: Sounds of Life	2 OPs	105609
+414	ASTRA LOST IN SPACE	1 OPs	105346
+415	Ya Boy Kongming!	1 OPs	104747
+416	ALDNOAH.ZERO	2 OPs	104470
+417	No.6	1 OPs	104135
+418	Cardcaptor Sakura	3 OPs	104060
+419	I Made Friends with the Second Prettiest Girl in My Class	1 OPs	104040
+420	A Sister's All You Need.	1 OPs	103954
+421	Chillin' in Another World with Level 2 Super Cheat Powers	1 OPs	103938
+422	Interviews with Monster Girls	1 OPs	103752
+423	School Babysitters	1 OPs	103701
+424	Mayo Chiki!	1 OPs	103390
+425	Carole & Tuesday	2 OPs	103113
+426	Tokyo Ravens	1 OPs	102877
+427	Berserk of Gluttony	1 OPs	102647
+428	Happy Sugar Life	1 OPs	102549
+429	Isekai Cheat Magician	1 OPs	102461
+430	SHADOWS HOUSE	1 OPs	102456
+431	Bunny Drop	1 OPs	102241
+432	Demon King Daimao	1 OPs	102164
+433	Haibane Renmei	1 OPs	101793
+434	DECA-DENCE	1 OPs	101780
+435	WITCH WATCH	3 OPs	101708
+436	I'm Standing on a Million Lives	3 OPs	101615
+437	Vampire Knight	2 OPs	101602
+438	Wolf Girl and Black Prince	1 OPs	101537
+439	Blood-C	1 OPs	101429
+440	The Reincarnation of the Strongest Exorcist in Another World	1 OPs	101292
+441	Hensuki: Are you willing to fall in love with a pervert, as long as she’s a cutie?	1 OPs	101178
+442	IRODUKU: The World in Colors	1 OPs	100307
+443	Dead Mount Death Play	1 OPs	100201
+444	Undefeated Bahamut Chronicle	1 OPs	100079
+445	Engaged to the Unidentified	1 OPs	99967
+446	Armed Girl's Machiavellism	1 OPs	99950
+447	Mekakucity Actors	3 OPs	99691
+448	Kaiji - Ultimate Survivor	2 OPs	99146
+449	The Strongest Sage with the Weakest Crest	1 OPs	99033
+450	Somali and the Forest Spirit	1 OPs	98680
+451	Run with the Wind	2 OPs	98596
+452	Real Girl	1 OPs	98339
+453	Noblesse	1 OPs	98264
+454	Black Summoner	1 OPs	98229
+455	Princess Connect! Re:Dive	1 OPs	98220
+456	After the Rain	1 OPs	97979
+457	The Beginning After the End	1 OPs	97842
+458	REBORN!	8 OPs	97656
+459	Kubo Won't Let Me Be Invisible	1 OPs	97402
+460	Shakugan no Shana	2 OPs	97394
+461	Secrets of the Silent Witch	1 OPs	97304
+462	Failure Frame: I Became the Strongest and Annihilated Everything with Low-Level Spells	1 OPs	97219
+463	Kids on the Slope	1 OPs	97127
+464	Pseudo Harem	1 OPs	97030
+465	Suppose a Kid from the Last Dungeon Boonies moved to a starter town?	1 OPs	97014
+466	The Day I Became a God	1 OPs	96946
+467	The Ice Guy and His Cool Female Colleague	1 OPs	96806
+468	The Water Magician	1 OPs	96647
+469	Kino's Journey	2 OPs	96488
+470	Hentai Prince & the Stony Cat	1 OPs	95643
+471	Space Dandy	1 OPs	95609
+472	Inu X Boku Secret Service	1 OPs	95506
+473	No Longer Allowed in Another World	1 OPs	95494
+474	Heaven's Lost Property	2 OPs	95163
+475	Dusk Maiden of Amnesia	1 OPs	94193
+476	Love Tyrant	1 OPs	94012
+477	Mononoke	1 OPs	93942
+478	Aoashi	2 OPs	93660
+479	MARRIAGETOXIN	1 OPs	93643
+480	Engage Kiss	1 OPs	93067
+481	Wagnaria!!	3 OPs	93013
+482	Hokkaido Gals Are Super Adorable!	1 OPs	92919
+483	The Elusive Samurai	1 OPs	92635
+484	Rage of Bahamut: Genesis	3 OPs	92362
+485	Aesthetica of a Rogue Hero	1 OPs	92339
+486	Umamusume: Pretty Derby	1 OPs	92313
+487	Chobits	1 OPs	92182
+488	I Parry Everything	1 OPs	92024
+489	Clevatess	1 OPs	91978
+490	Danganronpa 3: The End of Hope’s Peak High School - Future Arc	1 OPs	91435
+491	The Magical Revolution of the Reincarnated Princess and the Genius Young Lady	1 OPs	91298
+492	My Mental Choices Are Completely Interfering With My School Romantic Comedy	2 OPs	90952
+493	Parallel World Pharmacy	1 OPs	90850
+494	EDENS ZERO	2 OPs	90817
+495	Rurouni Kenshin	5 OPs	90809
+496	The Girl I Like Forgot Her Glasses	1 OPs	90723
+497	7th Time Loop: The Villainess Enjoys a Carefree Life Married to Her Worst Enemy!	1 OPs	90647
+498	Rainbow	1 OPs	90636
+499	Jormungand	1 OPs	90362
+500	Amagami SS	2 OPs	90058
