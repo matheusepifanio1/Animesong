@@ -32,10 +32,10 @@ const CLIP_SECONDS = 16.5;
 const UA = "opdle-generator (github.com/matheusepifanio1/animesong)";
 
 // Faixas de popularidade por posição do dia (índice no ranking de franquias)
-// 1: top 30 · 2: top 60 · 3: top 100 · 4: 100–200 · 5: 200–500
-const BANDS = [[0, 30], [0, 60], [0, 100], [100, 200], [200, 500]];
+// top 100 dividido em 5: 1: 1º–20º · 2: 21º–40º · 3: 41º–60º · 4: 61º–80º · 5: 81º–100º
+const BANDS = [[0, 20], [20, 40], [40, 60], [60, 80], [80, 100]];
 const FRANCHISE_COOLDOWN = 2;    // mesma franquia pode voltar depois de 1 dia de pausa (com outra abertura)
-const THEME_COOLDOWN = 90;       // dias sem repetir a mesma abertura
+const THEME_COOLDOWN = 60;       // dias sem repetir a mesma abertura (e sempre com outro trecho)
 const MIN_GAP_SECONDS = 20;      // distância mínima entre trechos da mesma abertura
 const UNION_TYPES = new Set(["PREQUEL", "SEQUEL", "PARENT", "SIDE_STORY", "ALTERNATIVE"]);
 const FORMATS = new Set(["TV", "TV_SHORT", "ONA", "MOVIE"]);      // entram no catálogo de respostas
@@ -249,11 +249,12 @@ async function main() {
   // depois dela (uma vez só por valor) para serem gerados de novo com as regras atuais
   const regenFile = new URL("./regenerate-after.txt", import.meta.url);
   if (fs.existsSync(regenFile)) {
-    const after = fs.readFileSync(regenFile, "utf8").trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(after) && state.regeneratedAfter !== after) {
+    const token = fs.readFileSync(regenFile, "utf8").trim();   // "AAAA-MM-DD" ou "AAAA-MM-DD #n" para repetir
+    const after = token.slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(after) && state.regeneratedAfter !== token) {
       const dropped = Object.keys(state.days).filter((d) => d > after && d > todayBRT());
       dropped.forEach((d) => delete state.days[d]);
-      state.regeneratedAfter = after;
+      state.regeneratedAfter = token;
       log(`Regerando ${dropped.length} dias depois de ${after}`);
     }
   }
@@ -318,7 +319,7 @@ async function main() {
       let pool = ranked.slice(lo, Math.min(hi, ranked.length));
       const fresh = (f) => !rounds.some((r) => r.franchiseId === f.id) && (!lastFr.has(f.id) || diffDays(lastFr.get(f.id), date) >= FRANCHISE_COOLDOWN);
       let cands = pool.filter(fresh);
-      if (!cands.length) cands = ranked.slice(lo, Math.min(hi * 2, ranked.length)).filter(fresh);
+      if (!cands.length) cands = ranked.slice(Math.max(0, lo - 20), Math.min(hi + 20, ranked.length)).filter(fresh);
       let made = null;
       for (let attempt = 0; attempt < 12 && cands.length && !made; attempt++) {
         const f = cands.splice(Math.floor(rnd() * cands.length), 1)[0];
