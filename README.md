@@ -27,11 +27,12 @@ wrangler.toml      configuração do Worker
 1. Pega os 1500 animes mais populares do [AniList](https://anilist.co) e agrupa temporadas, filmes e histórias paralelas por franquia (qualquer uma vale como resposta).
 2. Busca as aberturas no [AnimeThemes](https://animethemes.moe).
 3. Para cada dia que falta (até 35 dias à frente), escolhe uma franquia por faixa de popularidade:
-   1: top 40 · 2: 40–120 · 3: 120–300 · 4: 300–600 · 5: 600–1200.
-   Mesma franquia só volta depois de 30 dias; mesma abertura depois de 90 e sempre com outro trecho (20 s de distância, no mínimo).
+   1: top 30 · 2: top 60 · 3: top 100 · 4: 100–200 · 5: 200–500.
+   Nas posições 1 a 3 sai de preferência a abertura mais icônica (primeira OP da temporada mais popular).
+   A mesma franquia pode voltar depois de 1 dia de pausa, com outra abertura; a mesma abertura só depois de 90 dias e sempre com outro trecho (20 s de distância, no mínimo).
 4. Escolhe um trecho que começa com som (sem silêncio no 1º segundo), corta 16,5 s, normaliza o volume e salva com nome aleatório.
 
-Dias já gerados nunca mudam. Novos animes só entram em dias futuros.
+Dias já gerados nunca mudam. Novos animes só entram em dias futuros. Para regerar os dias futuros com regras novas, coloque uma data em `generator/regenerate-after.txt`: os dias depois dela (e depois de hoje) são refeitos na próxima execução.
 
 ## Publicação
 

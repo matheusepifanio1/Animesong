@@ -32,8 +32,9 @@ const CLIP_SECONDS = 16.5;
 const UA = "opdle-generator (github.com/matheusepifanio1/animesong)";
 
 // Faixas de popularidade por posição do dia (índice no ranking de franquias)
-const BANDS = [[0, 40], [40, 120], [120, 300], [300, 600], [600, 1200]];
-const FRANCHISE_COOLDOWN = 30;   // dias sem repetir a mesma franquia
+// 1: top 30 · 2: top 60 · 3: top 100 · 4: 100–200 · 5: 200–500
+const BANDS = [[0, 30], [0, 60], [0, 100], [100, 200], [200, 500]];
+const FRANCHISE_COOLDOWN = 2;    // mesma franquia pode voltar depois de 1 dia de pausa (com outra abertura)
 const THEME_COOLDOWN = 90;       // dias sem repetir a mesma abertura
 const MIN_GAP_SECONDS = 20;      // distância mínima entre trechos da mesma abertura
 const UNION_TYPES = new Set(["PREQUEL", "SEQUEL", "PARENT", "SIDE_STORY", "ALTERNATIVE"]);
@@ -244,6 +245,18 @@ async function main() {
   const state = fs.existsSync(STATE_FILE) ? JSON.parse(fs.readFileSync(STATE_FILE, "utf8")) : { launch: null, days: {} };
   const from = args.from || (state.launch ? null : addDays(todayBRT(), 0));
   if (!state.launch) state.launch = from;
+  // regerar dias futuros: generator/regenerate-after.txt com uma data apaga do histórico os dias
+  // depois dela (uma vez só por valor) para serem gerados de novo com as regras atuais
+  const regenFile = new URL("./regenerate-after.txt", import.meta.url);
+  if (fs.existsSync(regenFile)) {
+    const after = fs.readFileSync(regenFile, "utf8").trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(after) && state.regeneratedAfter !== after) {
+      const dropped = Object.keys(state.days).filter((d) => d > after && d > todayBRT());
+      dropped.forEach((d) => delete state.days[d]);
+      state.regeneratedAfter = after;
+      log(`Regerando ${dropped.length} dias depois de ${after}`);
+    }
+  }
   const lastDay = Object.keys(state.days).sort().pop();
   const startDay = lastDay ? addDays(lastDay, 1) : state.launch;
   const endDay = addDays(todayBRT(), DAYS_AHEAD);
@@ -309,7 +322,7 @@ async function main() {
         // posições fáceis preferem a abertura mais icônica (anime mais popular, primeira OP)
         const w = ts.map((t) => {
           const pop = mediaById.get(t.anilistId)?.popularity || 1;
-          return slot <= 1 ? pop / Math.pow(t.sequence, 1.2) : slot === 2 ? Math.sqrt(pop) : 1;
+          return slot <= 2 ? pop / Math.pow(t.sequence, 1.2) : slot === 3 ? Math.sqrt(pop) : 1;
         });
         const order = [];
         const pickable = [...ts], ww = [...w];
