@@ -37,7 +37,8 @@ const FRANCHISE_COOLDOWN = 30;   // dias sem repetir a mesma franquia
 const THEME_COOLDOWN = 90;       // dias sem repetir a mesma abertura
 const MIN_GAP_SECONDS = 20;      // distância mínima entre trechos da mesma abertura
 const UNION_TYPES = new Set(["PREQUEL", "SEQUEL", "PARENT", "SIDE_STORY", "ALTERNATIVE"]);
-const FORMATS = new Set(["TV", "TV_SHORT", "ONA", "MOVIE"]);
+const FORMATS = new Set(["TV", "TV_SHORT", "ONA", "MOVIE"]);      // entram no catálogo de respostas
+const THEME_FORMATS = new Set(["TV", "TV_SHORT", "ONA"]);         // de onde saem as aberturas
 const GENRE_PT = {
   Action: "Ação", Adventure: "Aventura", Comedy: "Comédia", Drama: "Drama", Ecchi: "Ecchi", Fantasy: "Fantasia",
   Horror: "Terror", "Mahou Shoujo": "Garota mágica", Mecha: "Mecha", Music: "Música", Mystery: "Mistério",
@@ -112,6 +113,12 @@ async function fetchAniList() {
 
 const latinOrJp = (s) => /^[\p{Script=Latin}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{N}\p{P}\p{S}\s]+$/u.test(s);
 const titleOf = (m) => m.title.english || m.title.romaji;
+const cleanTitle = (t) => t
+  .replace(/\s*\((?:19|20)\d{2}\)\s*/g, " ")
+  .replace(/[:\s]+(?:Season|Seasons|Part|Cour)\s+[\d&\s,]+$/i, "")
+  .replace(/[:\s]+\d+(?:st|nd|rd|th)\s+Season$/i, "")
+  .replace(/\s+(?:Season|Part)\s+(?:Two|Three|Four|II|III|IV)$/i, "")
+  .replace(/\s{2,}/g, " ").trim();
 
 function buildFranchises(media) {
   const parent = new Map();
@@ -131,9 +138,12 @@ function buildFranchises(media) {
   for (const members of groups.values()) {
     members.sort((a, b) => b.popularity - a.popularity);
     const top = members[0];
+    // nome exibido: o título do membro mais antigo entre os bem populares, sem "Season 2", "(2019)" etc.
+    const strong = members.filter((m) => m.popularity >= top.popularity * 0.3 && FORMATS.has(m.format));
+    const base = (strong.length ? strong : [top]).slice().sort((a, b) => (a.seasonYear || 9999) - (b.seasonYear || 9999))[0];
     const names = new Set();
     for (const m of members) for (const t of [m.title.english, m.title.romaji, m.title.native, ...(m.synonyms || [])]) if (t && latinOrJp(t)) names.add(t.trim());
-    const name = titleOf(top);
+    const name = cleanTitle(titleOf(base)) || titleOf(base);
     names.delete(name);
     franchises.push({ id: top.id, name, aliases: [...names].slice(0, 40), popularity: top.popularity, members: members.map((m) => m.id) });
   }
@@ -145,7 +155,7 @@ function buildFranchises(media) {
 async function fetchThemes(media) {
   const byId = new Map(media.map((m) => [m.id, m]));
   const themes = [];
-  const ids = media.filter((m) => FORMATS.has(m.format)).map((m) => m.id);
+  const ids = media.filter((m) => THEME_FORMATS.has(m.format)).map((m) => m.id);
   for (let i = 0; i < ids.length; i += 25) {
     let url = `https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&filter[external_id]=${ids.slice(i, i + 25).join(",")}`
       + `&include=resources,animethemes.song.artists,animethemes.animethemeentries.videos.audio&page[size]=25`;

@@ -8,17 +8,8 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
       - run: |
-          npm view wrangler dist-tags --json > wrangler-ver.txt 2>&1 || true
-          node generator/generate.mjs --out out --state none.json --from 2026-10-16 --max-new 3 > gen-log.txt 2>&1 || echo FAILED >> gen-log.txt
-      - name: publish output
-        run: |
-          git config user.name bot; git config user.email bot@users.noreply.github.com
-          git checkout --orphan probe-out
-          git rm -rfq --cached . ; rm -rf out/tmp-*
-          git add -f gen-log.txt wrangler-ver.txt out || true
-          git commit -qm out && git push -f origin probe-out
+          npm view wrangler time --json | grep -E '"4\.1[2-5][0-9]\.[0-9]+"' > probe-out.txt
+          git init -q . && git config user.name bot && git config user.email bot@users.noreply.github.com
+          git checkout -q --orphan probe-out && git add probe-out.txt && git commit -qm out
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" probe-out

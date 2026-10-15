@@ -1,0 +1,58 @@
+name: OPdle
+
+# - Toda segunda-feira (e quando disparado à mão): gera os desafios que faltam até 35 dias à frente,
+#   envia para o KV da Cloudflare e publica o site.
+# - A cada push na main que mexe no site/worker: só publica.
+on:
+  schedule:
+    - cron: "17 6 * * 1"   # segunda, 03:17 em Brasília
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Quantos dias à frente manter prontos"
+        default: "35"
+  push:
+    branches: [main]
+    paths: ["public/**", "worker/**", "wrangler.toml", ".github/workflows/opdle.yml"]
+
+concurrency:
+  group: opdle
+  cancel-in-progress: false
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  WRANGLER_VERSION: "WRANGLER_PIN"
+
+jobs:
+  generate:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Instalar ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+      - name: Baixar histórico
+        run: node generator/kv.mjs pull-state state.json
+      - name: Gerar desafios
+        run: node generator/generate.mjs --state state.json --out out --days "${{ github.event.inputs.days || '35' }}"
+      - name: Enviar para o KV
+        run: node generator/kv.mjs push out
+
+  deploy:
+    needs: generate
+    if: always() && (needs.generate.result == 'success' || needs.generate.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Preparar configuração
+        run: |
+          NS=$(node generator/kv.mjs ns)
+          sed -i "s/KV_NAMESPACE_ID/$NS/" wrangler.toml
+      - name: Publicar na Cloudflare
+        run: npx --yes "wrangler@${WRANGLER_VERSION}" deploy

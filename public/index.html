@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>OPdle</title>
+<meta name="description" content="Adivinhe o anime pela abertura. 5 por dia, iguais para todo mundo.">
+<meta name="theme-color" content="#eceef4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: app de uma coluna; topo enxuto, player compacto e uma barra fixa no rodapé com a ação principal ao alcance do polegar. */
+:root {
+  --bg: #eceef4;
+  --surface: #ffffff;
+  --ink: #15172a;
+  --muted: #646a82;
+  --line: #d4d7e2;
+  --accent: #ff2e57;
+  --accent-ink: #ffffff;
+  --blue: #2f55ff;
+  --good: #1f9d5a;
+  --bad: #e0344b;
+  --skip: #8a8fa3;
+  --stage: #15172a;
+  --stage-ink: #f4f5fb;
+  --font-display: "Dela Gothic One", "Arial Black", Impact, sans-serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0f1d; --surface: #17192c; --ink: #eceefa; --muted: #9da2bd;
+    --line: #2a2d47; --accent: #ff4d70; --accent-ink: #ffffff; --blue: #7b93ff;
+    --good: #3cc47c; --bad: #ff5d72; --skip: #7d8199; --stage: #07070f; --stage-ink: #f4f5fb;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0f1d; --surface: #17192c; --ink: #eceefa; --muted: #9da2bd;
+  --line: #2a2d47; --accent: #ff4d70; --accent-ink: #ffffff; --blue: #7b93ff;
+  --good: #3cc47c; --bad: #ff5d72; --skip: #7d8199; --stage: #07070f; --stage-ink: #f4f5fb;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; background: var(--bg); }
+body { color: var(--ink); font: 15px/1.45 var(--font-body); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+
+.app { max-width: 520px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+
+/* topo */
+.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 8px;
+}
+.logo { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1; margin: 0; transform: skew(-8deg); text-shadow: 2px 2px 0 var(--accent); }
+.logo span { color: var(--accent); text-shadow: 2px 2px 0 var(--ink); }
+.meta { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.chip { padding: 2px 8px; border-radius: 99px; background: var(--blue); color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.iconbtn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--ink); background: var(--surface); font-weight: 700; line-height: 1; display: grid; place-items: center; padding: 0; }
+
+main { flex: 1; padding: 4px 16px 16px; display: grid; gap: 12px; align-content: start; }
+
+/* rodadas */
+.rounds { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.rpill { height: 26px; border-radius: 7px; display: grid; place-items: center; font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; background: var(--surface); border: 2px solid var(--line); color: var(--muted); }
+.rpill.now { border-color: var(--ink); color: var(--ink); }
+.rpill.won { background: var(--good); border-color: var(--good); color: #fff; }
+.rpill.lost { background: var(--bad); border-color: var(--bad); color: #fff; }
+
+/* player compacto */
+.player {
+  background: var(--stage); color: var(--stage-ink); border-radius: 16px; padding: 14px;
+  display: grid; gap: 12px;
+}
+.prow { display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.thumb { width: 60px; height: 60px; border-radius: 10px; overflow: hidden; display: grid; place-items: center; background: #23253a; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.disc {
+  width: 52px; height: 52px; border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--stage) 0 9%, var(--accent) 9.5% 30%, #111 30.5% 32%, transparent 32.5%),
+    repeating-radial-gradient(circle, #1d1e2c 0 2px, #26283a 2px 4px);
+}
+.player.playing .disc { animation: spin 1.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pinfo { display: grid; gap: 2px; min-width: 0; }
+.pkick { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+.pkick.won { color: #6ee7a5; opacity: 1; }
+.pkick.lost { color: #ff8a9c; opacity: 1; }
+.ptitle { font-family: var(--font-display); font-weight: 400; font-size: 19px; line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+.ptitle em { font-style: normal; color: var(--accent); }
+.psub { font-size: 13px; opacity: .75; overflow-wrap: anywhere; }
+.psub.err { color: #ffb3bf; opacity: 1; }
+.playbtn {
+  width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; align-content: center; gap: 0; padding: 0; flex: none;
+}
+.playbtn .ico { font-size: 18px; line-height: 1; }
+.playbtn .len { font-family: var(--font-mono); font-size: 11px; line-height: 1.2; }
+.playbtn:disabled { opacity: .4; cursor: not-allowed; }
+.playbtn:active:not(:disabled) { transform: scale(.94); }
+
+/* barra de tempo = tentativas */
+.timeline { display: grid; gap: 4px; }
+.bar { position: relative; height: 12px; }
+.seg { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: rgba(255,255,255,.08); }
+.seg.open { background: rgba(255,255,255,.28); }
+.seg.wrong { background: var(--bad); }
+.seg.skip { background: var(--skip); }
+.seg.correct { background: var(--good); }
+.prog { position: absolute; top: 0; bottom: 0; left: 0; width: 0; border-radius: 4px; background: var(--accent); mix-blend-mode: normal; opacity: .9; pointer-events: none; }
+.ticks { position: relative; height: 14px; font-family: var(--font-mono); font-size: 10px; opacity: .6; font-variant-numeric: tabular-nums; }
+.ticks span { position: absolute; transform: translateX(-100%); }
+
+/* palpites como etiquetas */
+.guesses { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.guesses li { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 4px 10px; border-radius: 99px; font-size: 13px; background: var(--surface); border: 1.5px solid var(--line); }
+.guesses li b { font-family: var(--font-mono); font-weight: 500; font-size: 11px; color: var(--muted); }
+.guesses li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guesses li.wrong { border-color: var(--bad); }
+.guesses li.wrong span::before { content: "✕ "; color: var(--bad); font-weight: 700; }
+.guesses li.skip { color: var(--muted); }
+.empty { margin: 0; font-size: 13px; color: var(--muted); }
+
+.links { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+.links a { color: var(--blue); }
+
+/* resumo */
+.summary { background: var(--surface); border: 2px solid var(--ink); border-radius: 16px; padding: 16px; display: grid; gap: 12px; }
+.score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.score .num { font-family: var(--font-display); font-size: 52px; line-height: .9; font-variant-numeric: tabular-nums; }
+.score .of { font-family: var(--font-mono); color: var(--muted); }
+.grid-share { font-size: 20px; line-height: 1.25; letter-spacing: 2px; white-space: pre; overflow-x: auto; margin: 0; }
+.songlist { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.songlist li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; font-size: 14px; }
+.songlist .pts { font-family: var(--font-mono); font-size: 12px; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.songlist a { color: var(--blue); }
+.next { margin: 0; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.next b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pair .btn { padding: 0 8px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* botões */
+.btn {
+  border: 2px solid var(--ink); border-radius: 12px; min-height: 46px; padding: 0 16px;
+  background: var(--surface); font-weight: 700; white-space: nowrap;
+}
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.block { width: 100%; }
+
+/* barra fixa no rodapé */
+.dock {
+  position: sticky; bottom: 0; z-index: 10;
+  background: var(--bg); border-top: 1.5px solid var(--line);
+  padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px);
+  display: grid; gap: 6px;
+}
+.inrow { display: flex; gap: 8px; }
+.ac { position: relative; flex: 1; min-width: 0; }
+.ac input {
+  width: 100%; height: 46px; padding: 0 14px; border-radius: 12px; border: 2px solid var(--ink);
+  background: var(--surface); outline: none; font-size: 16px;
+}
+.ac input:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 40%, transparent); }
+.ac ul {
+  position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); z-index: 20;
+  margin: 0; padding: 4px; list-style: none; max-height: min(260px, 40vh); overflow-y: auto;
+  background: var(--surface); border: 2px solid var(--ink); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+.ac li { padding: 11px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+.ac li small { color: var(--muted); font-size: 12px; text-align: right; overflow-wrap: anywhere; }
+.ac li.hi { background: var(--accent); color: var(--accent-ink); }
+.ac li.hi small { color: var(--accent-ink); opacity: .85; }
+.hint { margin: 0; min-height: 0; font-size: 13px; color: var(--bad); }
+.hint:empty { display: none; }
+
+/* conferir */
+.tune { background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 10px; font-size: 14px; }
+.tune p { margin: 0; color: var(--muted); }
+.found { display: grid; gap: 2px; }
+.tune .btn { min-height: 40px; padding: 0 12px; }
+.tune pre { margin: 0; font-size: 12px; white-space: pre-wrap; font-family: var(--font-mono); }
+
+details.how { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+details.how summary { cursor: pointer; font-weight: 700; }
+details.how ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.vol { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+.vol input { flex: 1; max-width: 180px; accent-color: var(--accent); }
+footer { font-size: 12px; color: var(--muted); text-align: center; }
+footer a, footer button { color: var(--blue); }
+footer button { background: none; border: 0; text-decoration: underline; padding: 0; }
+
+@media (prefers-reduced-motion: reduce) { .player.playing .disc { animation: none; } }
+@media (min-width: 600px) { .ptitle { font-size: 22px; } }
+
+/* dicas */
+.hints { display: grid; gap: 6px; }
+.hint-card { display: flex; gap: 10px; align-items: baseline; padding: 9px 12px; border-radius: 12px; background: var(--surface); border: 1.5px dashed var(--accent); font-size: 14px; }
+.hint-card b { font-family: var(--font-mono); font-weight: 500; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+.hint-card span { min-width: 0; overflow-wrap: anywhere; }
+
+/* botões do topo */
+.iconbtn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* painéis (estatísticas, arquivo) */
+.sheet { position: fixed; inset: 0; z-index: 50; background: rgba(10, 10, 20, .55); display: flex; align-items: flex-end; justify-content: center; }
+.sheet-in {
+  background: var(--bg); width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto;
+  border-radius: 18px 18px 0 0; padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  display: grid; gap: 14px; align-content: start;
+}
+@media (min-width: 600px) { .sheet { align-items: center; } .sheet-in { border-radius: 18px; } }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; }
+.sheet-head h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 22px; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.tile { background: var(--surface); border-radius: 12px; padding: 10px 6px; text-align: center; }
+.tile b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 24px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 11px; color: var(--muted); line-height: 1.2; display: block; }
+.dist { display: grid; gap: 5px; }
+.dist-row { display: grid; grid-template-columns: 34px 1fr; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 12px; }
+.dist-bar { height: 20px; border-radius: 5px; background: var(--muted); color: #fff; display: flex; align-items: center; justify-content: flex-end; padding: 0 6px; min-width: 24px; font-size: 11px; }
+.dist-bar.ok { background: var(--good); }
+.dist-bar.miss { background: var(--bad); }
+.sub-h { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.arch { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.arch button {
+  width: 100%; display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center; text-align: left;
+  padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface);
+}
+.arch .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.arch .d { font-size: 14px; }
+.arch .s { font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.arch .s.none { color: var(--muted); }
+.arch button.cur { border-color: var(--ink); }
+.status { padding: 24px 0; text-align: center; color: var(--muted); }
+.status b { display: block; color: var(--ink); font-size: 17px; margin-bottom: 6px; }
+.toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 14px); transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1 class="logo">OP<span>dle</span></h1>
+    <div class="meta">
+      <span id="modeChip" class="chip" hidden>Arquivo</span>
+      <span><b id="dayNum">#–</b></span>
+      <span><b id="scoreNow">0</b>/30</span>
+      <button class="iconbtn" id="archBtn" aria-label="Dias anteriores"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+      <button class="iconbtn" id="statsBtn" aria-label="Estatísticas"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6"/></svg></button>
+      <button class="iconbtn" id="helpBtn" aria-label="Como jogar">?</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="status" id="statusBox"><b>Carregando o desafio…</b></div>
+
+    <div class="rounds" id="rounds" aria-label="Rodadas" hidden></div>
+
+    <section class="player" id="player" aria-live="polite" hidden>
+      <div class="prow">
+        <div class="thumb"><div class="disc" id="disc" aria-hidden="true"></div><img id="artImg" alt="" hidden></div>
+        <div class="pinfo">
+          <span class="pkick" id="pKick">Abertura 1 de 5</span>
+          <p class="ptitle" id="pTitle">Que <em>OP</em> é essa?</p>
+          <span class="psub" id="pSub"></span>
+        </div>
+        <button class="playbtn" id="playBtn" disabled aria-label="Tocar"><span class="ico" id="playIco">▶</span><span class="len" id="playLen">1s</span></button>
+      </div>
+      <div class="timeline" id="timeline" aria-hidden="true">
+        <div class="bar" id="bar"><div id="segs"></div><div class="prog" id="prog"></div></div>
+        <div class="ticks" id="ticks"></div>
+      </div>
+    </section>
+
+    <div class="hints" id="hints" hidden></div>
+    <ul class="guesses" id="guesses" hidden></ul>
+    <p class="empty" id="emptyHint" hidden>Toque ▶ para ouvir. Cada erro ou pulo libera mais tempo.</p>
+    <div class="links" id="revLinks" hidden></div>
+
+    <section id="summaryArea" class="summary" hidden>
+      <span class="pkick" style="color:var(--muted)" id="sumKick">Fim do desafio</span>
+      <div class="score"><span class="num" id="finalScore">0</span><span class="of">/ 30 pontos</span></div>
+      <pre class="grid-share" id="shareGrid"></pre>
+      <div class="pair">
+        <button class="btn primary" id="copyBtn">Compartilhar</button>
+        <button class="btn" id="sumStatsBtn">Estatísticas</button>
+      </div>
+      <ol class="songlist" id="songList"></ol>
+      <p class="next" id="nextLine">Próximo desafio em <b id="countdown">--:--:--</b></p>
+    </section>
+
+    <details class="how" id="how">
+      <summary>Como jogar</summary>
+      <ol>
+        <li>São 5 aberturas por dia, iguais para todo mundo. A 1ª é de um anime muito conhecido e a 5ª de um bem menos famoso.</li>
+        <li>Toque ▶ para ouvir o trecho e digite o anime. Escolha o nome na lista. Qualquer temporada ou filme da franquia vale.</li>
+        <li>Cada erro ou pulo libera mais tempo: 1s, 2s, 4s, 7s, 11s e 16s.</li>
+        <li>Depois de 3 tentativas aparecem os gêneros e o ano. Na última, o nome do protagonista.</li>
+        <li>Acertou ouvindo 1s vale 6 pontos, com 16s vale 1. Até 30 pontos por dia.</li>
+        <li>O desafio muda à meia-noite, horário de Brasília. Dias anteriores ficam no arquivo.</li>
+      </ol>
+      <label class="vol" for="vol">Volume <input type="range" id="vol" min="0" max="100" value="70"></label>
+    </details>
+
+    <footer>
+      Trechos das aberturas via <a href="https://animethemes.moe" target="_blank" rel="noopener">AnimeThemes</a>, dados do <a href="https://anilist.co" target="_blank" rel="noopener">AniList</a>. Projeto de fã, sem fins lucrativos.<br>
+      <a href="luan/">Luandle</a> · <a href="palpite/">Palpite Otaku</a>
+    </footer>
+  </main>
+
+  <div class="dock" id="dock" hidden>
+    <p class="hint" id="hint" role="status"></p>
+    <div class="inrow" id="playArea">
+      <div class="ac">
+        <input id="guessInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" placeholder="Qual é o anime?" aria-label="Nome do anime" aria-autocomplete="list" aria-controls="acList">
+        <ul id="acList" role="listbox" hidden></ul>
+      </div>
+      <button class="btn primary" id="guessBtn">Chutar</button>
+      <button class="btn" id="skipBtn">Pular</button>
+    </div>
+    <button class="btn primary block" id="nextBtn" hidden>Próxima abertura</button>
+  </div>
+</div>
+
+<div class="sheet" id="statsSheet" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+    <div class="sheet-head"><h2 id="statsTitle">Estatísticas</h2><button class="iconbtn" data-close aria-label="Fechar">✕</button></div>
+    <div class="tiles" id="tiles"></div>
+    <p class="sub-h">Em quanto tempo você acerta</p>
+    <div class="dist" id="dist"></div>
+    <p class="empty">Seu histórico fica guardado neste aparelho e neste navegador.</p>
+  </div>
+</div>
+
+<div class="sheet" id="archSheet" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="archTitle">
+    <div class="sheet-head"><h2 id="archTitle">Dias anteriores</h2><button class="iconbtn" data-close aria-label="Fechar">✕</button></div>
+    <ul class="arch" id="archList"></ul>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+  const CLIPS = [1, 2, 4, 7, 11, 16];
+  const MAX_SEC = CLIPS[CLIPS.length - 1];
+  const ROUNDS = 5;
+  const GENRE_AFTER = 3;    // depois de 3 tentativas: gêneros e ano
+  const PROTAG_AFTER = 5;   // na última tentativa: protagonista
+  const GAMES_KEY = "opdle:games:v1";
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, "0");
+  const norm = (s) => String(s).normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9぀-ヿ一-鿿]/g, "");
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sem armazenamento */ } }
+  };
+  const addDays = (d, n) => { const t = new Date(d + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+  const fmtDate = (d) => new Date(d + "T12:00:00Z").toLocaleDateString("pt-BR", { day: "2-digit", month: "short", timeZone: "UTC" }).replace(".", "");
+  const todayBRT = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
+
+  // ---------- estado ----------
+  let games = store.get(GAMES_KEY) || {};
+  let catalog = [];            // [{id, name, keys:Set, aliases}]
+  let catById = new Map();
+  let puzzle = null;           // desafio carregado
+  let today = todayBRT();
+  let launch = null;
+  let game = null;             // progresso do dia carregado
+
+  const saveGames = () => store.set(GAMES_KEY, games);
+  const fresh = () => ({ rounds: Array.from({ length: ROUNDS }, () => ({ guesses: [], done: false, won: false })), current: 0, finished: false, playedOn: null });
+  const round = () => game.rounds[Math.min(game.current, ROUNDS - 1)];
+  const pr = () => puzzle.rounds[Math.min(game.current, ROUNDS - 1)];
+  const unlocked = (r = round()) => CLIPS[Math.min(r.guesses.length, CLIPS.length - 1)];
+  const roundPoints = (r) => r.won ? CLIPS.length - (r.guesses.length - 1) : 0;
+  const scoreOf = (g) => g.rounds.reduce((t, r) => t + roundPoints(r), 0);
+  const isArchive = () => puzzle && puzzle.date !== today;
+
+  // ---------- rede ----------
+  async function loadCatalog() {
+    const r = await fetch("catalog.json");
+    if (!r.ok) throw new Error("catálogo");
+    const d = await r.json();
+    catalog = d.franchises.map((f) => {
+      const keys = new Set([norm(f.name), ...f.aliases.map(norm)].filter(Boolean));
+      return { id: f.id, name: f.name, aliases: f.aliases, keys, pop: f.pop };
+    });
+    catById = new Map(catalog.map((e) => [e.id, e]));
+  }
+
+  async function loadPuzzle(date) {
+    stopClip();
+    $("statusBox").hidden = false;
+    $("statusBox").innerHTML = "<b>Carregando o desafio…</b>";
+    let r;
+    try { r = await fetch("api/puzzle" + (date ? "?date=" + date : "")); }
+    catch { return showStatus("Sem conexão.", "Confira sua internet e tente de novo."); }
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) return showStatus("Desafio indisponível.", d.error || "Tente de novo daqui a pouco.");
+    puzzle = d; today = d.today || today; launch = d.launch || launch;
+    game = games[puzzle.date] || fresh();
+    games[puzzle.date] = game;
+    $("statusBox").hidden = true;
+    setHint("");
+    $("guessInput").value = "";
+    // aquece o cache dos trechos do dia
+    puzzle.rounds.forEach((x, i) => { if (i !== game.current) fetch(clipUrl(x)).catch(() => {}); });
+    setTrack();
+    render();
+  }
+
+  function showStatus(title, text) {
+    ["rounds", "player", "hints", "guesses", "emptyHint", "revLinks", "summaryArea", "dock"].forEach((id) => { $(id).hidden = true; });
+    $("statusBox").hidden = false;
+    $("statusBox").innerHTML = `<b>${esc(title)}</b>${esc(text)}<br><br><button class="btn" onclick="location.reload()">Tentar de novo</button>`;
+  }
+
+  // ---------- áudio ----------
+  const clipUrl = (x) => "api/clip/" + x.clip;
+  const audio = new Audio();
+  audio.preload = "auto";
+  let playing = false, raf = 0, audioErr = false;
+
+  function setTrack() {
+    if (!puzzle || game.finished) return;
+    const url = clipUrl(pr());
+    audioErr = false;
+    if (!audio.src.endsWith(url)) { audio.src = url; audio.load(); }
+  }
+  audio.addEventListener("error", () => { audioErr = true; stopClip(); render(); });
+  audio.addEventListener("ended", () => { if (playing) { stopClip(); render(); } });
+
+  function playClip() {
+    if (playing) { stopClip(); render(); return; }
+    const r = round();
+    const len = r.done ? Infinity : unlocked(r);
+    try { audio.currentTime = 0; } catch { /* ainda carregando */ }
+    const p = audio.play();
+    if (p && p.catch) p.catch(() => { stopClip(); render(); });
+    playing = true; render();
+    let armed = false;
+    const tick = () => {
+      const t = audio.currentTime;
+      if (!armed) { armed = !audio.paused && t < 0.5; if (!armed && t >= 0.5) { try { audio.currentTime = 0; } catch { /* */ } } raf = requestAnimationFrame(tick); return; }
+      if (len !== Infinity) $("prog").style.width = (Math.min(t, len) / MAX_SEC * 100) + "%";
+      if (t >= len) { stopClip(); render(); return; }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+  function stopClip() { cancelAnimationFrame(raf); audio.pause(); playing = false; $("prog").style.width = "0%"; }
+
+  // ---------- jogadas ----------
+  function finishRound(r) {
+    if (r.won || r.guesses.length >= CLIPS.length) r.done = true;
+    if (r.done) stopClip();
+  }
+  function commit() {
+    if (game.rounds.every((r) => r.done) && !game.finished) { /* espera o "ver resultado" */ }
+    saveGames(); render();
+  }
+  function guess(entry) {
+    const r = round();
+    if (r.done || !entry) return;
+    if (r.guesses.some((g) => g.id === entry.id)) { setHint("Você já chutou esse."); return; }
+    const right = entry.id === pr().franchiseId || norm(entry.name) === norm(pr().answer);
+    r.guesses.push({ type: right ? "correct" : "wrong", text: entry.name, id: entry.id });
+    r.won = right;
+    finishRound(r);
+    $("guessInput").value = ""; closeAc(); setHint("");
+    commit();
+  }
+  function skip() {
+    const r = round();
+    if (r.done) return;
+    r.guesses.push({ type: "skip", text: "Pulou" });
+    finishRound(r); setHint(""); commit();
+  }
+  function giveUpBroken() { const r = round(); r.done = true; r.won = false; r.broken = true; commit(); }
+  function next() {
+    stopClip();
+    if (game.current < ROUNDS - 1) game.current++;
+    else { game.finished = true; game.score = scoreOf(game); if (!game.playedOn) game.playedOn = today; }
+    saveGames(); setTrack(); render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (game.finished && !isArchive()) setTimeout(() => openSheet("statsSheet"), 900);
+  }
+  const setHint = (t) => { $("hint").textContent = t; };
+
+  // ---------- autocomplete ----------
+  let acItems = [], acIndex = -1;
+  function search(text) {
+    const k = norm(text);
+    if (k.length < 1) return [];
+    const starts = [], has = [];
+    for (const e of catalog) {
+      let best = 0;
+      for (const key of e.keys) { if (key.startsWith(k)) { best = 2; break; } if (best < 1 && key.includes(k)) best = 1; }
+      if (!best) continue;
+      const via = norm(e.name).includes(k) ? "" : (e.aliases.find((a) => norm(a).includes(k)) || "");
+      (best === 2 ? starts : has).push({ e, via });
+    }
+    const byPop = (a, b) => b.e.pop - a.e.pop;
+    return [...starts.sort(byPop), ...has.sort(byPop)].slice(0, 8);
+  }
+  function openAc(text) {
+    acItems = search(text); acIndex = acItems.length ? 0 : -1;
+    const ul = $("acList");
+    if (!acItems.length) { ul.hidden = true; ul.innerHTML = ""; return; }
+    ul.innerHTML = acItems.map((it, i) => `<li role="option" data-i="${i}" class="${i === acIndex ? "hi" : ""}">${esc(it.e.name)}${it.via ? `<small>${esc(it.via)}</small>` : ""}</li>`).join("");
+    ul.hidden = false;
+  }
+  function closeAc() { acItems = []; acIndex = -1; $("acList").hidden = true; $("acList").innerHTML = ""; }
+  function moveAc(d) {
+    if (!acItems.length) return;
+    acIndex = (acIndex + d + acItems.length) % acItems.length;
+    [...$("acList").children].forEach((li, i) => li.classList.toggle("hi", i === acIndex));
+    $("acList").children[acIndex].scrollIntoView({ block: "nearest" });
+  }
+  function submitInput() {
+    const text = $("guessInput").value;
+    const exact = catalog.find((e) => e.keys.has(norm(text)));
+    const pick = acItems[acIndex]?.e || exact;
+    if (!pick) { setHint(text.trim() ? "Escolha um anime da lista." : "Digite o nome do anime."); return; }
+    guess(pick);
+  }
+
+  // ---------- compartilhar ----------
+  function shareRows(g) {
+    return g.rounds.map((r) => r.broken ? "⚠️" : CLIPS.map((_, i) => { const x = r.guesses[i]; return !x ? "⬜" : x.type === "correct" ? "🟩" : x.type === "skip" ? "⬛" : "🟥"; }).join("")).join("\n");
+  }
+  async function share() {
+    const text = `OPdle #${puzzle.number} · ${scoreOf(game)}/30\n${shareRows(game)}\n${location.host}${location.pathname.replace(/index\.html$/, "")}`;
+    try {
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) { await navigator.share({ text }); return; }
+      await navigator.clipboard.writeText(text); toast("Resultado copiado");
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      toast("Não deu para copiar. Tente de novo.");
+    }
+  }
+  let toastT = 0;
+  function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2200); }
+
+  // ---------- render ----------
+  const SEGS = CLIPS.map((c, i) => [i ? CLIPS[i - 1] : 0, c]);
+  function renderTicks() {
+    $("segs").innerHTML = SEGS.map(([a, b], i) => `<div class="seg" id="seg${i}" style="left:${a / MAX_SEC * 100}%;width:calc(${(b - a) / MAX_SEC * 100}% - 3px)"></div>`).join("");
+    $("ticks").innerHTML = CLIPS.map((c) => `<span style="left:${c / MAX_SEC * 100}%">${c}s</span>`).join("");
+  }
+  function showArt(url) {
+    const img = $("artImg");
+    if (!url) { img.hidden = true; $("disc").hidden = false; return; }
+    if (img.getAttribute("src") !== url) img.src = url;
+    img.hidden = false; $("disc").hidden = true;
+  }
+  function setPlayer(kick, kickCls, titleHTML, sub) {
+    const k = $("pKick"); k.textContent = kick; k.className = "pkick" + (kickCls ? " " + kickCls : "");
+    $("pTitle").innerHTML = titleHTML;
+    $("pSub").textContent = sub || ""; $("pSub").hidden = !sub;
+  }
+  const songLine = (x) => [x.media && norm(x.media) !== norm(x.answer) ? x.media : "", x.slug, x.song ? `“${x.song}”` : "", (x.artists || []).join(", ")].filter(Boolean).join(" · ");
+
+  function render() {
+    if (!puzzle) return;
+    const r = round(), x = pr();
+    const revealed = r.done && !game.finished;
+    const playingRound = !r.done && !game.finished;
+
+    $("dayNum").textContent = "#" + puzzle.number;
+    $("modeChip").hidden = !isArchive();
+    $("scoreNow").textContent = scoreOf(game);
+    $("rounds").hidden = false;
+    $("rounds").innerHTML = game.rounds.map((y, i) => {
+      const cls = y.done ? (y.won ? "won" : "lost") : (i === game.current && !game.finished ? "now" : "");
+      return `<div class="rpill ${cls}" aria-label="Rodada ${i + 1}">${y.done ? (y.won ? "+" + roundPoints(y) : "0") : i + 1}</div>`;
+    }).join("");
+
+    // player
+    $("player").hidden = game.finished;
+    $("player").classList.toggle("playing", playing);
+    if (revealed) {
+      showArt(r.broken ? null : x.cover);
+      const kick = r.broken ? "Trecho indisponível" : r.won ? `Acertou com ${CLIPS[r.guesses.length - 1]}s · +${roundPoints(r)}` : "Não foi dessa vez";
+      setPlayer(kick, r.won ? "won" : "lost", esc(x.answer), songLine(x));
+    } else if (!game.finished) {
+      showArt(null);
+      const sub = audioErr ? "O áudio não carregou. Toque em Pular." : r.guesses.length ? `Agora você ouve ${unlocked(r)}s` : "";
+      setPlayer(`Abertura ${game.current + 1} de ${ROUNDS}`, "", "Que <em>OP</em> é essa?", sub);
+      $("pSub").className = "psub" + (audioErr ? " err" : "");
+    }
+    const pb = $("playBtn");
+    pb.disabled = audioErr;
+    $("playIco").textContent = playing ? "■" : "▶";
+    $("playLen").textContent = r.done ? "tudo" : unlocked(r) + "s";
+    pb.setAttribute("aria-label", playing ? "Parar" : r.done ? "Ouvir o trecho inteiro" : `Tocar ${unlocked(r)} segundos`);
+    SEGS.forEach((_, i) => { const g = r.guesses[i]; $("seg" + i).className = "seg" + (g ? " " + g.type : (r.done || i <= r.guesses.length) ? " open" : ""); });
+
+    // dicas
+    const hints = [];
+    if (!game.finished && !r.won && r.guesses.length >= GENRE_AFTER) {
+      const gy = [(x.genres || []).join(", "), x.year].filter(Boolean).join(" · ");
+      if (gy) hints.push(`<div class="hint-card"><b>Dica</b><span>${esc(gy)}</span></div>`);
+    }
+    if (!game.finished && !r.won && r.guesses.length >= PROTAG_AFTER && x.protagonist) hints.push(`<div class="hint-card"><b>Protagonista</b><span>${esc(x.protagonist)}</span></div>`);
+    $("hints").innerHTML = hints.join(""); $("hints").hidden = !hints.length || revealed;
+
+    const wrong = r.guesses.map((g, i) => ({ g, i })).filter((y) => y.g.type === "wrong");
+    $("guesses").innerHTML = wrong.map(({ g, i }) => `<li class="wrong"><b>${CLIPS[i]}s</b><span>${esc(g.text)}</span></li>`).join("");
+    $("guesses").hidden = game.finished || !wrong.length;
+    $("emptyHint").hidden = !playingRound || r.guesses.length > 0;
+    $("revLinks").hidden = true;
+
+    // rodapé
+    $("dock").hidden = game.finished;
+    $("playArea").hidden = !playingRound;
+    $("nextBtn").hidden = !revealed;
+    if (revealed) $("nextBtn").textContent = game.current < ROUNDS - 1 ? "Próxima abertura →" : "Ver resultado →";
+    $("skipBtn").textContent = r.guesses.length < CLIPS.length - 1 ? "Pular" : "Desistir";
+    if (!playingRound) setHint("");
+
+    // resumo
+    $("summaryArea").hidden = !game.finished;
+    if (game.finished) {
+      $("sumKick").textContent = `OPdle #${puzzle.number} · ${fmtDate(puzzle.date)}`;
+      $("finalScore").textContent = scoreOf(game);
+      $("shareGrid").textContent = shareRows(game);
+      $("songList").innerHTML = puzzle.rounds.map((p, i) => {
+        const y = game.rounds[i];
+        return `<li><span class="pts">${y.won ? "+" + roundPoints(y) : "0"}</span><span><b>${esc(p.answer)}</b> · ${esc(songLine(p))}</span></li>`;
+      }).join("");
+      $("nextLine").hidden = isArchive();
+    }
+  }
+
+  // ---------- estatísticas e arquivo ----------
+  function stats() {
+    const done = Object.entries(games).filter(([, g]) => g.finished);
+    const dist = Array(CLIPS.length + 1).fill(0);
+    let total = 0;
+    for (const [, g] of done) { total += scoreOf(g); for (const r of g.rounds) { if (r.won) dist[r.guesses.length - 1]++; else dist[CLIPS.length]++; } }
+    const onDay = new Set(done.filter(([d, g]) => g.playedOn === d).map(([d]) => d));
+    let cur = 0, d = onDay.has(today) ? today : addDays(today, -1);
+    while (onDay.has(d)) { cur++; d = addDays(d, -1); }
+    let best = 0, run = 0, prev = null;
+    for (const day of [...onDay].sort()) { run = prev && addDays(prev, 1) === day ? run + 1 : 1; best = Math.max(best, run); prev = day; }
+    return { played: done.length, avg: done.length ? (total / done.length).toFixed(1).replace(".", ",") : "–", cur, best, dist };
+  }
+  function renderStats() {
+    const s = stats();
+    $("tiles").innerHTML = [[s.played, "Jogos"], [s.avg, "Média de pontos"], [s.cur, "Sequência"], [s.best, "Melhor sequência"]]
+      .map(([v, l]) => `<div class="tile"><b>${v}</b><span>${l}</span></div>`).join("");
+    const max = Math.max(1, ...s.dist);
+    $("dist").innerHTML = s.dist.map((n, i) => {
+      const label = i < CLIPS.length ? CLIPS[i] + "s" : "✕";
+      const cls = i < CLIPS.length ? "ok" : "miss";
+      return `<div class="dist-row"><span>${label}</span><div class="dist-bar ${n ? cls : ""}" style="width:${Math.max(8, n / max * 100)}%">${n}</div></div>`;
+    }).join("");
+  }
+  function renderArchive() {
+    if (!launch) { $("archList").innerHTML = `<li class="empty">Nenhum desafio anterior ainda.</li>`; return; }
+    const items = [];
+    for (let d = today, i = 0; d >= launch && i < 400; d = addDays(d, -1), i++) {
+      const g = games[d];
+      const n = Math.round((Date.parse(d) - Date.parse(launch)) / 86400e3) + 1;
+      const s = g?.finished ? `${scoreOf(g)}/30` : g && g.rounds.some((r) => r.guesses.length) ? "em andamento" : "não jogado";
+      items.push(`<li><button data-date="${d}" class="${puzzle && puzzle.date === d ? "cur" : ""}"><span class="n">#${n}</span><span class="d">${d === today ? "Hoje" : fmtDate(d)}</span><span class="s ${g?.finished ? "" : "none"}">${s}</span></button></li>`);
+    }
+    $("archList").innerHTML = items.join("");
+  }
+  function openSheet(id) { if (id === "statsSheet") renderStats(); else renderArchive(); $(id).hidden = false; }
+  function closeSheets() { $("statsSheet").hidden = true; $("archSheet").hidden = true; }
+
+  // ---------- contagem até o próximo desafio ----------
+  function tick() {
+    const nowBRT = Date.now() - 3 * 3600e3;
+    const s = Math.max(0, Math.ceil((86400e3 - (nowBRT % 86400e3)) / 1000));
+    $("countdown").textContent = `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+    const t = todayBRT();
+    if (t > today) { today = t; if (puzzle && !isArchive() && game.finished) loadPuzzle(); }
+  }
+
+  // ---------- eventos ----------
+  const input = $("guessInput");
+  input.addEventListener("input", () => { setHint(""); openAc(input.value); });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); moveAc(1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); moveAc(-1); }
+    else if (e.key === "Enter") { e.preventDefault(); submitInput(); }
+    else if (e.key === "Escape") closeAc();
+  });
+  input.addEventListener("blur", () => setTimeout(closeAc, 150));
+  $("acList").addEventListener("mousedown", (e) => { const li = e.target.closest("li"); if (!li) return; e.preventDefault(); guess(acItems[Number(li.dataset.i)].e); });
+  $("guessBtn").addEventListener("click", submitInput);
+  $("skipBtn").addEventListener("click", () => audioErr ? giveUpBroken() : skip());
+  $("playBtn").addEventListener("click", playClip);
+  $("nextBtn").addEventListener("click", next);
+  $("copyBtn").addEventListener("click", share);
+  $("sumStatsBtn").addEventListener("click", () => openSheet("statsSheet"));
+  $("statsBtn").addEventListener("click", () => openSheet("statsSheet"));
+  $("archBtn").addEventListener("click", () => openSheet("archSheet"));
+  $("helpBtn").addEventListener("click", () => { const d = $("how"); d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); });
+  document.querySelectorAll(".sheet").forEach((s) => s.addEventListener("click", (e) => { if (e.target === s || e.target.closest("[data-close]")) closeSheets(); }));
+  $("archList").addEventListener("click", (e) => { const b = e.target.closest("[data-date]"); if (!b) return; closeSheets(); loadPuzzle(b.dataset.date === today ? null : b.dataset.date); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSheets();
+    if (e.target === input) return;
+    if (e.code === "Space" && puzzle && !game.finished && !$("playBtn").disabled) { e.preventDefault(); playClip(); }
+  });
+  $("vol").addEventListener("input", (e) => { const v = Number(e.target.value); store.set("opdle:vol", v); audio.volume = v / 100; });
+
+  // ---------- início ----------
+  const savedVol = store.get("opdle:vol");
+  if (typeof savedVol === "number") { $("vol").value = savedVol; audio.volume = savedVol / 100; } else audio.volume = 0.7;
+  renderTicks();
+  if (!Object.keys(games).length) $("how").open = true;
+  Promise.all([loadCatalog(), loadPuzzle()]).then(render).catch(() => showStatus("Não deu para carregar o jogo.", "Confira sua internet e tente de novo."));
+  setInterval(tick, 1000); tick();
+  window.OPDLE = { stats, search };
+})();
+</script>
+</body>
+</html>
