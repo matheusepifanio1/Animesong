@@ -283,7 +283,7 @@ async function main() {
     franchises: franchises.map((f) => ({ id: f.id, name: f.name, aliases: f.aliases, pop: f.popularity }))
   }));
 
-  if (!dates.length) { log("Nada para gerar."); fs.writeFileSync(path.join(OUT, "state.json"), JSON.stringify(state)); return; }
+  if (!dates.length && !args.list) { log("Nada para gerar."); fs.writeFileSync(path.join(OUT, "state.json"), JSON.stringify(state)); return; }
 
   const themes = await fetchThemes(media);
   log(`AnimeThemes: ${themes.length} aberturas`);
@@ -295,6 +295,11 @@ async function main() {
   }
   const ranked = franchises.filter((f) => themesByFr.has(f.id)); // só franquias com abertura
   log(`Franquias com abertura: ${ranked.length}`);
+  if (args.list) { // só lista o ranking usado nas faixas (não gera nada)
+    const lines = ranked.slice(0, Number(args.list) || 500).map((f, i) => `${i + 1}\t${f.name}\t${themesByFr.get(f.id).length} OPs\t${f.popularity}`);
+    fs.writeFileSync(path.join(OUT, "ranking.txt"), lines.join("\n") + "\n");
+    log("Ranking salvo."); return;
+  }
 
   // histórico: último uso de franquia/abertura e trechos já usados
   const lastFr = new Map(), lastTheme = new Map(), usedStarts = new Map();
