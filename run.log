@@ -1,0 +1,29 @@
+
+ ⛅️ wrangler 4.140.0
+────────────────────
+🌀 Building list of assets...
+✨ Read 9 files from the assets directory /home/runner/work/Animesong/Animesong/public
+🌀 Starting asset upload...
+No updated asset files to upload. Proceeding with deployment...
+Total Upload: 12.45 KiB / gzip: 3.93 KiB
+Your Worker has access to the following bindings:
+Binding                                            Resource            
+env.DB (OpdleDB)                                   Durable Object      
+env.KV (fdf116a4daa7401eb05da078a79db087)          KV Namespace        
+env.ASSETS                                         Assets              
+
+Uploaded opdle (4.17 sec)
+Deployed opdle triggers (0.80 sec)
+  https://opdle.cckawaii.workers.dev
+Current Version ID: 3fffca1d-e011-4a75-9906-d80e62b62963
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+Site: https://opdle.cckawaii.workers.dev
+Desafio de hoje: 2026-10-19 #5 5 rodadas
+clip: 200 audio/mpeg 198784 bytes
+catalog: 200 251205 bytes
+futuro: 403
+luan: 200
+{"date":"2026-10-19","players":0,"avg":null,"rounds":[{"correct":0,"pct":null},{"correct":0,"pct":null},{"correct":0,"pct":null},{"correct":0,"pct":null},{"correct":0,"pct":null}]}
+stats: 200
+og.png: 200 image/png
