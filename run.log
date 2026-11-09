@@ -1,0 +1,18 @@
+Histórico baixado.
+16:16:58 Lançamento 2026-10-15; dias já prontos: 54; gerar: 7
+16:17:22 AniList: 250 animes
+16:17:48 AniList: 500 animes
+16:18:15 AniList: 750 animes
+16:18:41 AniList: 1000 animes
+16:19:07 AniList: 1250 animes
+16:19:34 AniList: 1500 animes
+16:19:36 AniList: 1500 animes
+16:19:37 HTTP 503 em https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&fil… esperando 20s
+16:19:58 HTTP 503 em https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&fil… esperando 20s
+16:20:18 HTTP 503 em https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&fil… esperando 20s
+16:20:38 HTTP 503 em https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&fil… esperando 20s
+16:20:58 HTTP 503 em https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&fil… esperando 20s
+16:21:19 HTTP 503 em https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&fil… esperando 20s
+TypeError: Cannot read properties of undefined (reading 'anime')
+    at fetchThemes (file:///home/runner/work/Animesong/Animesong/generator/generate.mjs:165:25)
+    at async main (file:///home/runner/work/Animesong/Animesong/generator/generate.mjs:289:18)
